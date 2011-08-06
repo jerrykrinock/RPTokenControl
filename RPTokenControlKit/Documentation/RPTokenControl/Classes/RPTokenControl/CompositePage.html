@@ -1,0 +1,420 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><head>
+    <title>RPTokenControl</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">RPTokenControl</font></h1><hr><br>
+<h2>Abstract</h2>
+RPTokenControl is a replacement for NSTokenField.
+It is geared toward looking presenting a nice-looking "Tag Cloud" for bookmarks.
+In that context, think "token" = "tag".
+<h2>Discussion</h2>
+<h3>INHERITANCE</h3>
+RPTokenControl is a subclass of NSControl : NSView : NSObject
+<h3>SYSTEM REQUIREMENTS</h3>
+RPTokenControl requires Mac OS 10.3 or later, but will only accept drags when running under Mac OS 10.4 or later.
+<h3>KVC-COMPLIANT PROPERTIES</h3>
+The following properties may be set and observed using key-value coding,
+except those noted as read-only may be only observed.
+Accessor methods may also be available.
+<ul>
+<li>
+<h4>id tokens</h4>
+The tokens displayed in the control.
+May be an NSArray, NSSet or NSCountedSet of tokens.
+The array elements (tokens) may be NSString or RPCountedToken objects.
+<br><br>
+A token is composed of (1) text (a string) and, optionally, (2) a count.
+If  is an NSCountedSet, counts are evaluated with -countForObject:.
+In other collections, NSString objects have an implied count of 1.
+<br><br>
+Note: NSCountedSet has some limitations.  For example, you cannot setCount:
+for an object.  The only way to set a members count to N is to add it N times.  Arghhhh.
+Thus, for many applications, a simple collection of RPCountedToken objects may be better
+than an NSCountedSet.
+<br><br>
+If tokens is nil, the view will display the string set the value of ivar placeholderString.
+<br><br>
+</li>
+<li>
+<h4>NSMutableIndexSet* selectedIndexSet</h4>
+Index set giving the indexes of tokens that are selected (highlighted) in the RPTokenControl.
+"Safe" accessors which make immutable copies are available.
+</li>
+<li>
+<h4>NSArray* selectedTokens</h4>
+An array of NSString objects, the text values of all tokens which are selected (highlighted) in the RPTokenControl.
+This array is derived from selectedIndexSet.
+This property is KVC-compliant for reading only.
+You can observe it to find when the selection has changed.
+But there is no actual instance variable and there is no setter.
+</li>
+<li>
+<h4>NSCharacterSet* disallowedCharacterSet</h4>
+If, while typing in a new token, the user enters a character from the disallowedCharacterSet, it will be replaced
+with an underscore ("_"), and the System Alert will sound.  The user may continue typing after this happens.
+<br><br>
+Note that this behaves differently than the tokenizingCharacterSet ivar of NSTokenField,
+which causes editing to end in the token being edited.  To end editing a token in 
+RPTokenControl, the user (naturally) types 'return'.
+</li>
+<li>
+<h4>NSString* placeholderString</h4>
+String which will be displayed if tokens is nil or empty.
+</li>
+<li>
+<h4> int maxTokensToDisplay</h4>
+Defines the maximum number of tokens that will be displayed.
+Default value is infinite = NSNotFound.
+</li>
+<li>
+<h4> BOOL showsReflections</h4>
+Defines whether or not the view shows a pretty, Leopard-dock-like
+reflection of each token.
+Default value is NO.
+</li>
+<li>
+<h4>float backgroundWhiteness</h4>
+Defines the background color drawn in between the tokens.
+Uses grayscale from 0.0=black to 1.0=white.
+Default value is 1.0 (white)
+</li>
+<li>
+<h4> BOOL appendCountsToStrings</h4>
+Sets whether or not tokens will be drawn with their count appended in square brackets.
+For example, if YES, a token "MyToken" with count 5 will appear as "MyToken [5]". </li>
+It would look silly to set this to YES if setShowsCountsAsToolTips is also YES.
+Default value is NO.
+<li>
+<h4>float fixedFontSize</h4>
+Defines a "fixed" font size to be used from drawing all tokens.
+If this value is not 0.0, all tokens will be drawn with font size equal to this value.
+If this value is 0.0, variable font sizes, from minFontSize to maxFontSize will be used.
+Default value is 0.0 (use variable font sizes0.
+</li>
+<li>
+<h4>float minFontSize</h4>
+Defines the smallest font size, used to draw the smallest-count tokens.
+However, this value is ignored if fixedFontSize == 0.0.
+</li>
+<li>
+<h4>float maxFontSize</h4>
+Defines the largest font size, used to draw the largest-count tokens.
+However, this value is ignored if fixedFontSize == 0.0.
+</li>
+<li>
+<h4>BOOL showsCountsAsToolTips</h4>
+Defines whether or not tokens will have tooltips that indicate their counts.
+It would look silly to set this to YES if setAppendCountsToStrings is also YES.
+Default value is NO.</li>
+<li>
+<h4>BOOL isEditable</h4>
+If YES,
+<ul>
+<li>The 'delete' key will delete selected tokens when the RPTokenControl is firstResponder</li>
+<li>New tokens can be typed in when the RPTokenControl is firstResponder.
+<li>New tokens can be dragged in as described in <a href="#draggingDestination" target="_blank">Drag Destination</a>.</li> 
+</ul>
+If NO, none of the above will work.
+</li>
+<li>
+<h4>NSString* linkDragType</h4> 
+The linkDragType is useful if you would like special behavior when objects of this
+externally-defined drag type are dragged onto the RPTokenControl.
+This behavior may  "link" the dragged object to the destination token,
+affecting the source instead of the destination, kind of a "reverse" drag.
+For example, if you set linkDragType to be a 'bookmark' type,
+and the tokens in your RPTokenControl represented available bookmark "tags",
+you could (in external code), add the destination token to the
+dragged bookmark's "tags", thus "tagging" the dragged bookmark.
+</li>
+<li>
+<h4>NSImage* dragImage</h4>
+Defines the cursor image that will be shown when a token is dragged.
+If not set, Cocoa uses a default image. </li>
+<li>
+<a name="ivars.delegate"></a>
+<h4>id delegate</h4> 
+If a linkDragType has been set, during a drag which includes a linkDragType
+into the RPTokenControl, RPTokenControl will, after testing that the delegate responds,
+send the following messages to the delegate:
+<ul>
+<li>-draggingEntered:</li> 
+<li>-draggingUpdated:</li>
+<li>-performDragOperation:</li> 
+<li>-draggingExited:
+</ul>
+For documentation of when these messages will be sent, their parameters and expected
+return values, see Cocoa's "NSDraggingDestination Protocol Reference" document.
+</li>
+</ul>
+<h3>TARGET-ACTION</h3>
+RPTokenControl will send an action to its target when its selection changes.
+(Observing selectedTokens or selectedIndexSet is an alternative to this.)
+<h3>DRAGGING SOURCE</h3>
+RPTokenControl provides four pasteboard types to the dragging pasteboard.
+<ol>
+<li>NSStringPboardType: NSString of the last selected token</li>
+<li>NSTabularTextPboardType: tab-separated string of selected tokens</li>
+<li>RPTokenPboardType: same as NSString PboardType</li>
+<li>RPTabularTokenPboardType: same as NSTabularTextPboardType</li>
+</ol>
+Although the payload is the same as the first two types, the last two
+types are provided to distinguish drags from the RPTokenControl from
+drags of text from other sources.  This is in case the app wants to
+do something different when it receives "token" strings.
+<br><br>
+Dragging a token always initiates a NSDragOperationCopy operation.
+Dragged tokens are never removed from the RPTokenControl
+<a name="draggingDestination"></a>
+<h3>DRAGGING DESTINATION</h3>
+If system is Mac OS 10.3, or if ivar isEditable=NO, RPTokenControl is not a dragging destination.
+Attempted drags will return NSDragOperationNone.
+<br><br>
+If system if Mac OS 10.4 or later, and if ivar isEditable=YES,
+tokens or strings dragged into RPTokenControl will be added to tokens.
+They will not be selected.
+Drag destination supports only strings, not counts.
+New tokens dropped in will have a count of 1.
+<br><br>
+If the pasteboard contains an object of the set linkDragType, it will takes precedence.
+Behavior will be only as described above in <a href="#ivars.delegate" target="_blank">delegate</a>.
+No token will be added, and other drag types on sender's the pasteboard will be ignored.
+<h3>VERSION HISTORY</h3>
+<ul>
+<li>Version 1.0.2.  2008 Feb 06.  
+- -setTokens now retains old value of _tokens until after triggering change notification
+to observer.  This was sometimes causing crashes in Tiger but not Leopard.
+- The ellipsis token is now better behaved.  When clicking the ellipsisToken, instead of
+being selected, the leftmost displayed token is scrolled off and, if there is room,
+the rightmost token which was truncated is scrolled in.  Scrolling can be activated
+in either direction by using the arrow keys when the end tag is selected.
+- Fixed bug in -keyDown which caused NSArray exception to be logged if down-arrow
+key was typed when no tokens were selected.
+- Fixed bug in -drawRect which caused focus ring to scroll with the RPTokenControl
+when enclosed in a scroll view.  Did this by replacing two dozen lines of very stupid
+code with three lines of smart code.
+</li>
+<li>Version 1.0.1.  2008 Jan 02.  
+- Added hysteresis so that drag does not begin until significant mouse movement.
+</li>
+<li>Version 1.0.0.  2007 Dec 26
+- Initial release.
+</li>
+</ul>
+<h3>AUTHOR</h3>
+RPTokenControl is an adaptation of Robert Pointon's <a href="http://www.fernlightning.com/doku.php?id=randd:tcloud:start">Tag Cloud NSView</a>. 
+It was adapted by Jerry Krinock jerry at ieee.org in San Jose, California USA.
+(I'm not afraid of more spam, but a bug in HeaderDoc does not allow at-sign to be used even if it is backslash-escaped as documented.) 
+<hr><br><h2>Methods</h2>
+
+<h3><a name="delegate:">delegate:</a></h3>
+<b>Abstract:</b> getter for ivar delegate
+ 
+<blockquote><pre><tt>- (id)<B>delegate;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="disallowedCharacterSet">disallowedCharacterSet</a></h3>
+<b>Abstract:</b> getter for ivar disallowedCharacterSet
+ 
+<blockquote><pre><tt>- (NSCharacterSet *)<B>disallowedCharacterSet;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="linkDragType:">linkDragType:</a></h3>
+<b>Abstract:</b> getter for ivar linkDragType
+ 
+<blockquote><pre><tt>- (NSString *)<B>linkDragType;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="placeholderString">placeholderString</a></h3>
+<b>Abstract:</b> getter for ivar placeholderString
+ 
+<blockquote><pre><tt>- (NSString *)<B>placeholderString;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="selectedIndexSet:">selectedIndexSet:</a></h3>
+<b>Abstract:</b> getter for ivar selectedIndexSet
+
+<blockquote><pre><tt>- (NSIndexSet*)<B>selectedIndexSet;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> an immutable copy of selectedIndexSet
+ 
+<hr>
+
+<h3><a name="selectedTokens">selectedTokens</a></h3>
+<b>Abstract:</b> An NSArray of the tokens selected in the control view
+
+<blockquote><pre><tt>- (NSArray*)<B>selectedTokens;</B> </tt><br>
+</pre></blockquote>
+<p>
+</p>
+<b>Result:</b> An array of NSStrings.  Each string is the text of a selected token.  Counts are not provided.
+ 
+<hr>
+
+<h3><a name="setAppendCountsToStrings:">setAppendCountsToStrings:</a></h3>
+<b>Abstract:</b> setter for ivar appendCountsToStrings
+
+<blockquote><pre><tt>- (void)<B>setAppendCountsToStrings:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+
+<h3><a name="setBackgroundWhiteness:">setBackgroundWhiteness:</a></h3>
+<b>Abstract:</b> setter for ivar backgroundWhiteness
+
+<blockquote><pre><tt>- (void)<B>setBackgroundWhiteness:</B>(float)<I>whiteness;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+
+<h3><a name="setDelegate:">setDelegate:</a></h3>
+<b>Abstract:</b> setter for ivar delegate
+ 
+<blockquote><pre><tt>- (void)<B>setDelegate:</B>(id)<I>delegate;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="setDisallowedCharacterSet:">setDisallowedCharacterSet:</a></h3>
+<b>Abstract:</b> setter for ivar disallowedCharacterSet
+ 
+<blockquote><pre><tt>- (void)<B>setDisallowedCharacterSet:</B>(NSCharacterSet *)<I>newDisallowedCharacterSet;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="setDragImage:">setDragImage:</a></h3>
+<b>Abstract:</b> setter for the ivar dragImage
+ 
+<blockquote><pre><tt>- (void)<B>setDragImage:</B>(NSImage*)<I>image;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="setEditable:">setEditable:</a></h3>
+<b>Abstract:</b> setter for ivar isEditable
+ 
+<blockquote><pre><tt>- (void)<B>setEditable:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="setFixedFontSize:">setFixedFontSize:</a></h3>
+<b>Abstract:</b> setter for ivar fixedFontSize
+
+<blockquote><pre><tt>- (void)<B>setFixedFontSize:</B>(float)<I>x;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+
+<h3><a name="setLinkDragType:">setLinkDragType:</a></h3>
+<b>Abstract:</b> setter for ivar linkDragType
+ 
+<blockquote><pre><tt>- (void)<B>setLinkDragType:</B>(NSString*)<I>linkDragType;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="setMaxFontSize:">setMaxFontSize:</a></h3>
+<b>Abstract:</b> setter for the ivar maxFontSIze
+
+<blockquote><pre><tt>- (void)<B>setMaxFontSize:</B>(float)<I>x;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+
+<h3><a name="setMaxTokensToDisplay:">setMaxTokensToDisplay:</a></h3>
+<b>Abstract:</b> setter for ivar maxTokensToDisplay
+
+<blockquote><pre><tt>- (void)<B>setMaxTokensToDisplay:</B>(int)<I>maxTokensToDisplay;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+If not set, all tokens that fit will be displayed
+ </p>
+<hr>
+
+<h3><a name="setMinFontSize:">setMinFontSize:</a></h3>
+<b>Abstract:</b> setter for the ivar minFontSize
+
+<blockquote><pre><tt>- (void)<B>setMinFontSize:</B>(float)<I>x;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+
+<h3><a name="setPlaceholderString:">setPlaceholderString:</a></h3>
+<b>Abstract:</b> setter for ivar placeholderString
+ 
+<blockquote><pre><tt>- (void)<B>setPlaceholderString:</B>(NSString *)<I>newPlaceholderString;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="setSelectedIndexSet:">setSelectedIndexSet:</a></h3>
+<b>Abstract:</b> setter for ivar selectedIndexSet
+
+<blockquote><pre><tt>- (void)<B>setSelectedIndexSet:</B>(NSIndexSet*)<I>newSelectedIndexSet;</I> </tt><br>
+</pre></blockquote>
+<p>Makes a mutable copy of the argument.
+Make sure that the range of the argument is within the range of tokens
+ </p>
+<hr>
+
+<h3><a name="setShowsCountsAsToolTips:">setShowsCountsAsToolTips:</a></h3>
+<b>Abstract:</b> setter for the ivar showsCountsAsToolTips.
+
+<blockquote><pre><tt>- (void)<B>setShowsCountsAsToolTips:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p>It would look silly to set this to YES if setAppendCountsToStrings is also YES.
+If not set, will default to NO.
+ </p>
+<hr>
+
+<h3><a name="setShowsReflections:">setShowsReflections:</a></h3>
+<b>Abstract:</b> setter for the ivar showsReflections
+
+<blockquote><pre><tt>- (void)<B>setShowsReflections:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+
+<h3><a name="setTokens:">setTokens:</a></h3>
+<b>Abstract:</b> setter for ivar tokens 
+ 
+<blockquote><pre><tt>- (void)<B>setTokens:</B>(id)<I>tokens;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="tokens">tokens</a></h3>
+<b>Abstract:</b> getter for ivar tokens
+ 
+<blockquote><pre><tt>- (id)<B>tokens;</B> </tt><br>
+</pre></blockquote>
+<p>
+</p>
+<hr>
+<p>(Last Updated 2/8/2008)
+</p></body></html>

@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><head>
+    <title>Methods</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">Methods</font></h1><hr><br>
+<a name="//apple_ref/occ/instm/RPTokenControl/delegate:"></a>
+<h3><a name="delegate:">delegate:</a></h3>
+<b>Abstract:</b> getter for ivar delegate
+ 
+<blockquote><pre><tt>- (id)<B>delegate;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/disallowedCharacterSet"></a>
+<h3><a name="disallowedCharacterSet">disallowedCharacterSet</a></h3>
+<b>Abstract:</b> getter for ivar disallowedCharacterSet
+ 
+<blockquote><pre><tt>- (NSCharacterSet *)<B>disallowedCharacterSet;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/linkDragType:"></a>
+<h3><a name="linkDragType:">linkDragType:</a></h3>
+<b>Abstract:</b> getter for ivar linkDragType
+ 
+<blockquote><pre><tt>- (NSString *)<B>linkDragType;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/placeholderString"></a>
+<h3><a name="placeholderString">placeholderString</a></h3>
+<b>Abstract:</b> getter for ivar placeholderString
+ 
+<blockquote><pre><tt>- (NSString *)<B>placeholderString;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/selectedIndexSet:"></a>
+<h3><a name="selectedIndexSet:">selectedIndexSet:</a></h3>
+<b>Abstract:</b> getter for ivar selectedIndexSet
+
+<blockquote><pre><tt>- (NSIndexSet*)<B>selectedIndexSet;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> an immutable copy of selectedIndexSet
+ 
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/selectedTokens"></a>
+<h3><a name="selectedTokens">selectedTokens</a></h3>
+<b>Abstract:</b> An NSArray of the tokens selected in the control view
+
+<blockquote><pre><tt>- (NSArray*)<B>selectedTokens;</B> </tt><br>
+</pre></blockquote>
+<p>
+</p>
+<b>Result:</b> An array of NSStrings.  Each string is the text of a selected token.  Counts are not provided.
+ 
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setAppendCountsToStrings:"></a>
+<h3><a name="setAppendCountsToStrings:">setAppendCountsToStrings:</a></h3>
+<b>Abstract:</b> setter for ivar appendCountsToStrings
+
+<blockquote><pre><tt>- (void)<B>setAppendCountsToStrings:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setBackgroundWhiteness:"></a>
+<h3><a name="setBackgroundWhiteness:">setBackgroundWhiteness:</a></h3>
+<b>Abstract:</b> setter for ivar backgroundWhiteness
+
+<blockquote><pre><tt>- (void)<B>setBackgroundWhiteness:</B>(float)<I>whiteness;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setDelegate:"></a>
+<h3><a name="setDelegate:">setDelegate:</a></h3>
+<b>Abstract:</b> setter for ivar delegate
+ 
+<blockquote><pre><tt>- (void)<B>setDelegate:</B>(id)<I>delegate;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setDisallowedCharacterSet:"></a>
+<h3><a name="setDisallowedCharacterSet:">setDisallowedCharacterSet:</a></h3>
+<b>Abstract:</b> setter for ivar disallowedCharacterSet
+ 
+<blockquote><pre><tt>- (void)<B>setDisallowedCharacterSet:</B>(NSCharacterSet *)<I>newDisallowedCharacterSet;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setDragImage:"></a>
+<h3><a name="setDragImage:">setDragImage:</a></h3>
+<b>Abstract:</b> setter for the ivar dragImage
+ 
+<blockquote><pre><tt>- (void)<B>setDragImage:</B>(NSImage*)<I>image;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setEditable:"></a>
+<h3><a name="setEditable:">setEditable:</a></h3>
+<b>Abstract:</b> setter for ivar isEditable
+ 
+<blockquote><pre><tt>- (void)<B>setEditable:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setFixedFontSize:"></a>
+<h3><a name="setFixedFontSize:">setFixedFontSize:</a></h3>
+<b>Abstract:</b> setter for ivar fixedFontSize
+
+<blockquote><pre><tt>- (void)<B>setFixedFontSize:</B>(float)<I>x;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setLinkDragType:"></a>
+<h3><a name="setLinkDragType:">setLinkDragType:</a></h3>
+<b>Abstract:</b> setter for ivar linkDragType
+ 
+<blockquote><pre><tt>- (void)<B>setLinkDragType:</B>(NSString*)<I>linkDragType;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setMaxFontSize:"></a>
+<h3><a name="setMaxFontSize:">setMaxFontSize:</a></h3>
+<b>Abstract:</b> setter for the ivar maxFontSIze
+
+<blockquote><pre><tt>- (void)<B>setMaxFontSize:</B>(float)<I>x;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setMaxTokensToDisplay:"></a>
+<h3><a name="setMaxTokensToDisplay:">setMaxTokensToDisplay:</a></h3>
+<b>Abstract:</b> setter for ivar maxTokensToDisplay
+
+<blockquote><pre><tt>- (void)<B>setMaxTokensToDisplay:</B>(int)<I>maxTokensToDisplay;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+If not set, all tokens that fit will be displayed
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setMinFontSize:"></a>
+<h3><a name="setMinFontSize:">setMinFontSize:</a></h3>
+<b>Abstract:</b> setter for the ivar minFontSize
+
+<blockquote><pre><tt>- (void)<B>setMinFontSize:</B>(float)<I>x;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setPlaceholderString:"></a>
+<h3><a name="setPlaceholderString:">setPlaceholderString:</a></h3>
+<b>Abstract:</b> setter for ivar placeholderString
+ 
+<blockquote><pre><tt>- (void)<B>setPlaceholderString:</B>(NSString *)<I>newPlaceholderString;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setSelectedIndexSet:"></a>
+<h3><a name="setSelectedIndexSet:">setSelectedIndexSet:</a></h3>
+<b>Abstract:</b> setter for ivar selectedIndexSet
+
+<blockquote><pre><tt>- (void)<B>setSelectedIndexSet:</B>(NSIndexSet*)<I>newSelectedIndexSet;</I> </tt><br>
+</pre></blockquote>
+<p>Makes a mutable copy of the argument.
+Make sure that the range of the argument is within the range of tokens
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setShowsCountsAsToolTips:"></a>
+<h3><a name="setShowsCountsAsToolTips:">setShowsCountsAsToolTips:</a></h3>
+<b>Abstract:</b> setter for the ivar showsCountsAsToolTips.
+
+<blockquote><pre><tt>- (void)<B>setShowsCountsAsToolTips:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p>It would look silly to set this to YES if setAppendCountsToStrings is also YES.
+If not set, will default to NO.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setShowsReflections:"></a>
+<h3><a name="setShowsReflections:">setShowsReflections:</a></h3>
+<b>Abstract:</b> setter for the ivar showsReflections
+
+<blockquote><pre><tt>- (void)<B>setShowsReflections:</B>(BOOL)<I>yn;</I> </tt><br>
+</pre></blockquote>
+<p>Invoking this method will recalculate the receiver's layout
+and mark the receiver with -setNeedsDisplay.
+ </p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/setTokens:"></a>
+<h3><a name="setTokens:">setTokens:</a></h3>
+<b>Abstract:</b> setter for ivar tokens 
+ 
+<blockquote><pre><tt>- (void)<B>setTokens:</B>(id)<I>tokens;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPTokenControl/tokens"></a>
+<h3><a name="tokens">tokens</a></h3>
+<b>Abstract:</b> getter for ivar tokens
+ 
+<blockquote><pre><tt>- (id)<B>tokens;</B> </tt><br>
+</pre></blockquote>
+<p>
+</p>
+<hr>
+<p>(Last Updated 2/8/2008)
+</p></body></html>

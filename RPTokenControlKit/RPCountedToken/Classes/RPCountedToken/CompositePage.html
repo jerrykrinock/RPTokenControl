@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><head>
+    <title>RPCountedToken</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">RPCountedToken</font></h1><hr><br>
+<h2>Abstract</h2>
+RPCountedToken is an NSString with a count.
+Although the count may be used for any arbitrary purpose, it is normally used to
+represent the number of times that an RPCountedToken has been "added" to its parent collection.
+Because its count is settable, it is used internally by RPTokenControl to represent tokens,
+and may be used externally in applications where the inability to set the count makes
+NSCountedSet too cumbersome.
+<h2>Discussion</h2>
+<h3>INHERITANCE</h3>
+RPCountedToken is a subclass of NSObject
+<h3>SYSTEM REQUIREMENTS</h3>
+RPTokenControl has been tested on systems as early as Mac OS 10.3.
+<h3>KVC-COMPLIANT PROPERTIES</h3>
+The following properties may be set and observed using key-value coding,
+except those noted as read-only may be only observed.
+Accessor methods may also be available.
+<ul>
+<li>
+<h4>NSString* text</h4>
+The string.
+</li>
+<li>
+<h4>int count</h4> 
+The count.  The value count=0 is reserved for the special "ellipsis" RPCountedToken
+</li>
+</ul>
+<h3>VERSION HISTORY, AUTHOR, ETC.</h3>
+See RPTokenControl.h for this info.
+ <hr><br><h2>Methods</h2>
+
+<h3><a name="count">count</a></h3>
+<b>Abstract:</b> getter for the ivar count
+ 
+<blockquote><pre><tt>- (int)<B>count;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="countCompare:">countCompare:</a></h3>
+<blockquote><pre><tt>- (NSComparisonResult)<B>countCompare:</B>(RPCountedToken*)<I>other;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> if count of the receiver < count of other, returns NSOrderedDescending.
+If count of the receiver > count of other, returns NSOrderedAscending.
+If count of the receiver == count of other, returns result of -textCompare:other.
+ 
+<hr>
+
+<h3><a name="ellipsisToken">ellipsisToken</a></h3>
+<b>Abstract:</b> gets a special "ellipsis" RPCountedToken
+
+<blockquote><pre><tt>+ (RPCountedToken*)<B>ellipsisToken;</B> </tt><br>
+</pre></blockquote>
+<p>The text of the special "ellipsis" RPCountedToken is a one-character string, 
+the unicode eliipsis (0x2026).  The count is 0.  This special RPCountedToken is used by
+RPTokenControl as the last token when there are too many to fit in the given frame.
+</p>
+<b>Result:</b> an autoreleased instance of the special "ellipsis" RPCountedoken
+ 
+<hr>
+
+<h3><a name="incCount">incCount</a></h3>
+<b>Abstract:</b> Increments the count property of the receiver.
+ 
+<blockquote><pre><tt>- (void)<B>incCount;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="initWithText:count:">initWithText:count:</a></h3>
+<b>Abstract:</b> designated initializer, sets both instance variables.
+
+<blockquote><pre><tt>- (id)<B>initWithText:</B>(NSString*)<I>text
+</I> <B>count:</B>(int)<I>count;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<h4>Parameters</h4>
+<blockquote>
+<table border="1"  width="90%">
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tr><td align="center"><tt>text</tt></td><td>new value for the text property of the receiver</td></tr>
+<tr><td align="center"><tt>count</tt></td><td>new value for the count property of the receiver</td></tr>
+</table>
+</blockquote>
+<b>Result:</b> an instance of RPCountedToken
+ 
+<hr>
+
+<h3><a name="isEllipsisToken">isEllipsisToken</a></h3>
+<blockquote><pre><tt>- (BOOL)<B>isEllipsisToken;</B> </tt><br>
+</pre></blockquote>
+<p>With the current design, -[myCountedToken isEllipsisToken] is equivalent to
+-[myCountedToken count] == 0 && myCountedToken != nil.  This method is a convenience
+and attempt to avert future bugs.
+ </p>
+<b>Result:</b> If the receiver is an ellipsis token, returns YES.
+Otherwise, returns NO.
+
+<hr>
+
+<h3><a name="text">text</a></h3>
+<b>Abstract:</b> getter for the ivar text
+ 
+<blockquote><pre><tt>- (NSString*)<B>text;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+
+<h3><a name="textCompare:">textCompare:</a></h3>
+<blockquote><pre><tt>- (NSComparisonResult)<B>textCompare:</B>(RPCountedToken*)<I>other;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> NSOrderedAscending, NSOrderedSame or NSOrderedDescending,
+determined by sending -localizedCaseInsensitiveCompare:other to the receiver.
+ 
+<hr>
+
+<h3><a name="textWithCountAppended">textWithCountAppended</a></h3>
+<blockquote><pre><tt>- (NSString*)<B>textWithCountAppended;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> The text value of the receiver with the count value appended in square brackets.
+Example: "MyText [5]"
+ 
+<hr>
+<p>(Last Updated 2/8/2008)
+</p></body></html>

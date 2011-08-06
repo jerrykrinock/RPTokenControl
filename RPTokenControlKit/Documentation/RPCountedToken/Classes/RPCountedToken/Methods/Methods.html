@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><head>
+    <title>Methods</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">Methods</font></h1><hr><br>
+<a name="//apple_ref/occ/instm/RPCountedToken/count"></a>
+<h3><a name="count">count</a></h3>
+<b>Abstract:</b> getter for the ivar count
+ 
+<blockquote><pre><tt>- (int)<B>count;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/countCompare:"></a>
+<h3><a name="countCompare:">countCompare:</a></h3>
+<blockquote><pre><tt>- (NSComparisonResult)<B>countCompare:</B>(RPCountedToken*)<I>other;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> if count of the receiver < count of other, returns NSOrderedDescending.
+If count of the receiver > count of other, returns NSOrderedAscending.
+If count of the receiver == count of other, returns result of -textCompare:other.
+ 
+<hr>
+<a name="//apple_ref/occ/clm/RPCountedToken/ellipsisToken"></a>
+<h3><a name="ellipsisToken">ellipsisToken</a></h3>
+<b>Abstract:</b> gets a special "ellipsis" RPCountedToken
+
+<blockquote><pre><tt>+ (RPCountedToken*)<B>ellipsisToken;</B> </tt><br>
+</pre></blockquote>
+<p>The text of the special "ellipsis" RPCountedToken is a one-character string, 
+the unicode eliipsis (0x2026).  The count is 0.  This special RPCountedToken is used by
+RPTokenControl as the last token when there are too many to fit in the given frame.
+</p>
+<b>Result:</b> an autoreleased instance of the special "ellipsis" RPCountedoken
+ 
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/incCount"></a>
+<h3><a name="incCount">incCount</a></h3>
+<b>Abstract:</b> Increments the count property of the receiver.
+ 
+<blockquote><pre><tt>- (void)<B>incCount;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/initWithText:count:"></a>
+<h3><a name="initWithText:count:">initWithText:count:</a></h3>
+<b>Abstract:</b> designated initializer, sets both instance variables.
+
+<blockquote><pre><tt>- (id)<B>initWithText:</B>(NSString*)<I>text
+</I> <B>count:</B>(int)<I>count;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<h4>Parameters</h4>
+<blockquote>
+<table border="1"  width="90%">
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tr><td align="center"><tt>text</tt></td><td>new value for the text property of the receiver</td></tr>
+<tr><td align="center"><tt>count</tt></td><td>new value for the count property of the receiver</td></tr>
+</table>
+</blockquote>
+<b>Result:</b> an instance of RPCountedToken
+ 
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/isEllipsisToken"></a>
+<h3><a name="isEllipsisToken">isEllipsisToken</a></h3>
+<blockquote><pre><tt>- (BOOL)<B>isEllipsisToken;</B> </tt><br>
+</pre></blockquote>
+<p>With the current design, -[myCountedToken isEllipsisToken] is equivalent to
+-[myCountedToken count] == 0 && myCountedToken != nil.  This method is a convenience
+and attempt to avert future bugs.
+ </p>
+<b>Result:</b> If the receiver is an ellipsis token, returns YES.
+Otherwise, returns NO.
+
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/text"></a>
+<h3><a name="text">text</a></h3>
+<b>Abstract:</b> getter for the ivar text
+ 
+<blockquote><pre><tt>- (NSString*)<B>text;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/textCompare:"></a>
+<h3><a name="textCompare:">textCompare:</a></h3>
+<blockquote><pre><tt>- (NSComparisonResult)<B>textCompare:</B>(RPCountedToken*)<I>other;</I> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> NSOrderedAscending, NSOrderedSame or NSOrderedDescending,
+determined by sending -localizedCaseInsensitiveCompare:other to the receiver.
+ 
+<hr>
+<a name="//apple_ref/occ/instm/RPCountedToken/textWithCountAppended"></a>
+<h3><a name="textWithCountAppended">textWithCountAppended</a></h3>
+<blockquote><pre><tt>- (NSString*)<B>textWithCountAppended;</B> </tt><br>
+</pre></blockquote>
+<p></p>
+<b>Result:</b> The text value of the receiver with the count value appended in square brackets.
+Example: "MyText [5]"
+ 
+<hr>
+<p>(Last Updated 2/8/2008)
+</p></body></html>
