@@ -49,17 +49,18 @@ extern id const SSYNoTokensMarker ;
  But there is no actual instance variable and there is no setter.
  </li>
  <li>
- <h4>NSCharacterSet* disallowedCharacterSet</h4>
+ <h4>NSCharacterSet* disallowedCharacterSet and replacementString</h4>
  If, while typing in a new token, the user enters a character from the disallowedCharacterSet, it will be replaced
- with an underscore ("_"), and the System Alert will sound.  The user may continue typing after this happens.
- Note: Don't confuse disallowedCharacterSet with tokenizingCharacterSet.
+ with the replacementString, and the System Alert will sound.  The user may continue typing after this happens.
+ Note: Don't confuse disallowedCharacterSet with tokenizingCharacterSet.  During -awakeFromNib, replacmentString
+ is set to @"_"
  </li>
  <li>
  <h4>NSString* placeholderString</h4>
  String which will be displayed if tokens is nil or empty.
  </li>
  <li>
- <h4> int maxTokensToDisplay</h4>
+ <h4> NSInteger maxTokensToDisplay</h4>
  Defines the maximum number of tokens that will be displayed.
  Default value is infinite = NSNotFound.
  </li>
@@ -104,17 +105,36 @@ extern id const SSYNoTokensMarker ;
  It would look silly to set this to YES if setAppendCountsToStrings is also YES.
  Default value is NO.</li>
  <li>
- <h4>BOOL isEditable</h4>
- If YES,
- <ul>
-	<li>The 'delete' key will delete selected tokens when the RPTokenControl is firstResponder</li>
-    <li>New tokens can be typed in when the RPTokenControl is firstResponder.
-    <li>New tokens can be dragged in as described in <a href="#draggingDestination" target="_blank">Drag Destination</a>.</li> 
- </ul>
- If NO, none of the above will work.
+ <h4>RPTokenControlEditability</h4>
+ <table border="1" cellpadding="10" align="left">
+ <tr>
+ <td>Value</td>
+ <td>The 'delete' key will delete selected tokens when the RPTokenControl is firstResponder</td>
+ <td>New tokens can be typed in when the RPTokenControl is firstResponder.</td>
+ <td>New tokens can be dragged in as described in <a href="#draggingDestination" target="_blank">Drag Destination</a>.</td>
+ </tr>
+ <tr>
+ <td>RPTokenControlEditability0</td>
+ <td>NO</td>
+ <td>NO</td>
+ <td>NO</td>
+ </tr>
+ <tr>
+ <td>RPTokenControlEditability1</td>
+ <td>YES</td>
+ <td>NO</td>
+ <td>NO</td>
+ </tr>
+ <tr>
+ <td>RPTokenControlEditability2</td>
+ <td>YES</td>
+ <td>YES</td>
+ <td>YES</td>
+ </tr>
+ </table>
  </li>
  <li>
- <h4>NSString* linkDragType</h4> 
+ <h4>NSString* linkDragType</h4>
  The linkDragType is useful if you would like special behavior when objects of this
  externally-defined drag type are dragged onto the RPTokenControl.
  This behavior may  "link" the dragged object to the destination token,
@@ -173,8 +193,9 @@ extern id const SSYNoTokensMarker ;
  Dragged tokens are never removed from the RPTokenControl
  <a name="draggingDestination"></a>
  <h3>DRAGGING DESTINATION</h3>
- If system is Mac OS 10.3, or if ivar isEditable=NO, RPTokenControl is not a dragging destination.
- Attempted drags will return NSDragOperationNone.
+ If system is Mac OS 10.3, or if ivar editability < RPTokenControlEditability2,
+ RPTokenControl is not a dragging destination. Attempted drags will return
+ NSDragOperationNone.
 
  If system if Mac OS 10.4 or later, and if ivar isEditable=YES,
  tokens or strings dragged into RPTokenControl will be added to tokens.
@@ -187,6 +208,9 @@ extern id const SSYNoTokensMarker ;
  No token will be added, and other drag types on sender's the pasteboard will be ignored.
  <h3>VERSION HISTORY</h3>
  <ul>
+ <li>Version 2.1.  20120710.  
+ - Removed a -retain which could cause a crash.  See Note 20120629.
+ </li>
  <li>Version 2.0.  20100127.  
  - Now requires Mac OS X 10.5 or later.
  - Known issue: Typing in tokens does not work propely.  I'm using it non-editable
@@ -235,33 +259,51 @@ extern id const SSYNoTokensMarker ;
  (I'm not afraid of more spam, but a bug in HeaderDoc does not allow at-sign to be used even if it is backslash-escaped as documented.) 
 */
 
-/*
- If you are developing with the 10.5 SDK, MAC_OS_X_VERSION_MAX_ALLOWED = 1050, MAC_OS_X_VERSION_10_5 = 1050 and the following #if will be true.
- If you are developing with the 10.6 SDK, MAC_OS_X_VERSION_MAX_ALLOWED = 1060, MAC_OS_X_VERSION_10_5 = 1050 and the following #if will be false.
+enum RPTokenControlEditability_enum {
+    RPTokenControlEditability0,
+    RPTokenControlEditability1,
+    RPTokenControlEditability2
+    } ;
+typedef enum RPTokenControlEditability_enum RPTokenControlEditability ;
+
+/*!
+ @brief    Notification which is posted whenever the user deletes tokens
+ by selecting them and hitting the 'delete' key
+ @details  Note that this can only happen if you have set the receiver's
+ editability to a value >= RPTokenControlEditability1.  The 'object'
+ of the posted notification will be the affected RPTokenControl.  The 'userInfo'
+ dictionary of the posted notification will contain one key,
+ RPTokenControlUserDeletedTokensKey, whose value is an array of strings
+ which are the deleted tokens.
  */
-#if (MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_5) 
+extern NSString* const RPTokenControlUserDeletedTokensNotification ;
+extern NSString* const RPTokenControlUserDeletedTokensKey ;
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1060) 
 @interface RPTokenControl : NSControl
 #else
 @interface RPTokenControl : NSControl <NSTextFieldDelegate>
 #endif
 {
 	id m_objectValue ;
-    int _maxTokensToDisplay ;
-	int _firstTokenToDisplay ;
-	int _showsReflections ;
+    NSInteger _maxTokensToDisplay ;
+	NSInteger _firstTokenToDisplay ;
+	NSInteger _showsReflections ;
 	float _backgroundWhiteness ;
-	int _lastSelectedIndex ;
+	NSInteger _lastSelectedIndex ;
 	BOOL _appendCountsToStrings ;
 	BOOL _showsCountsAsToolTips ;
 	float _minFontSize ;
 	float _maxFontSize ;
 	CGFloat m_fixedFontSize ;
-	BOOL _isEditable ;
+	RPTokenControlEditability m_editablity ;
+    BOOL m_canDeleteTags ;
 	
 	NSImage* _dragImage ;
 	NSMutableArray* _framedTokens ;
 	NSMutableArray* _truncatedTokens ;
 	NSCharacterSet* m_disallowedCharacterSet ;
+	NSString* m_replacementString ;
 	NSCharacterSet* m_tokenizingCharacterSet ;
 	unichar m_tokenizingCharacter ;
 	NSString* m_noTokensPlaceholder ;
@@ -272,7 +314,7 @@ extern id const SSYNoTokensMarker ;
 	NSString* _linkDragType ;
 	NSMutableIndexSet* _selectedIndexSet ;
 	NSMutableString* _tokenBeingEdited ;
-	int _indexOfFramedTokenBeingEdited ;
+	NSInteger _indexOfFramedTokenBeingEdited ;
 	NSTextField* _textField ;
 	BOOL _isDoingLayout ;
 	NSPoint _mouseDownPoint ; // for hysteresis in beginning drag
@@ -284,6 +326,7 @@ extern id const SSYNoTokensMarker ;
 @property (copy) NSString* linkDragType ;
 @property (assign) id delegate ;
 @property (retain) NSCharacterSet* disallowedCharacterSet ;
+@property (copy) NSString* replacementString ;
 @property (retain) NSCharacterSet* tokenizingCharacterSet ;
 @property (assign) unichar tokenizingCharacter ;
 @property (copy) NSString* noTokensPlaceholder ;
@@ -291,6 +334,7 @@ extern id const SSYNoTokensMarker ;
 @property (copy) NSString* multipleValuesPlaceholder ;
 @property (copy) NSString* notApplicablePlaceholder ;
 @property (assign) CGFloat fixedFontSize ;
+@property (assign) RPTokenControlEditability editability ;
 
 /*!
  @brief    An NSArray of the tokens selected in the control view
@@ -324,7 +368,7 @@ extern id const SSYNoTokensMarker ;
  and mark the receiver with -setNeedsDisplay.
  If not set, all tokens that fit will be displayed
  */
-- (void)setMaxTokensToDisplay:(int)maxTokensToDisplay ;
+- (void)setMaxTokensToDisplay:(NSInteger)maxTokensToDisplay ;
 
 /*!
  @brief    setter for the ivar showsReflections
@@ -369,9 +413,9 @@ extern id const SSYNoTokensMarker ;
 - (void)setShowsCountsAsToolTips:(BOOL)yn ;
 
 /*!
- @brief    setter for ivar isEditable
+ @brief    setter for ivar editability
  */
-- (void)setEditable:(BOOL)yn ;
+- (void)setEditability:(RPTokenControlEditability)editability ;
 
 
 @end

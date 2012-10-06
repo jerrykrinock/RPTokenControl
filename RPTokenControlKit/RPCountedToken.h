@@ -22,7 +22,7 @@
  The string.
  </li>
  <li>
- <h4>int count</h4> 
+ <h4>NSInteger count</h4> 
  The count.  The value count=0 is reserved for the special "ellipsis" RPCountedToken
  </li>
  </ul>
@@ -31,7 +31,7 @@
  */
 @interface RPCountedToken : NSObject {
 	NSString *_text ;
-	int _count ;
+	NSInteger _count ;
 	// _count = 0 denotes a special "ellipsis token"
 }
 
@@ -42,7 +42,7 @@
  @result   an instance of RPCountedToken
  */
 - (id)initWithText:(NSString*)text
-			 count:(int)count ;
+			 count:(NSInteger)count ;
 /*!
  @brief    Increments the count property of the receiver.
  */
@@ -62,7 +62,7 @@
 /*!
  @brief    getter for the ivar count
  */
-- (int)count ;
+- (NSInteger)count ;
 
 /*!
  @result   NSOrderedAscending, NSOrderedSame or NSOrderedDescending,
@@ -94,6 +94,15 @@
  @result   an autoreleased instance of the special "ellipsis" RPCountedoken
  */
 + (RPCountedToken*)ellipsisToken ;
+
+/*!
+ @brief    Returns YES if the receiver's text to another given
+ RPCountedToken's text, or equal to another given string
+
+ @details  Note that this is a rather liberal definition of
+ isEqual:.  The 'count' is ignored!
+*/
+- (BOOL)isEqual:(id)other ;
 
 @end
 

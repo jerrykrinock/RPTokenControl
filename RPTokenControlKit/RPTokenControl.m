@@ -2,24 +2,17 @@
 #import "RPBlackReflectionUtils.h"
 #import "RPCountedToken.h"
 #import "NSView+FocusRing.h"
+#import "SSY+Countability.h"
 
-#if 0
-@interface NSString (Bonehead)
-- (int)objectEnumerator ;
-@end
-@implementation NSString (Bonehead)
-- (int)objectEnumerator  {
-	return 0 ;
-}
-@end
-#endif
+NSString* const RPTokenControlUserDeletedTokensNotification = @"RPTokenControlUserDeletedTokensNotification" ;
+NSString* const RPTokenControlUserDeletedTokensKey = @"RPTokenControlUserDeletedTokensKey" ;
 
 id const SSYNoTokensMarker = @"SSYNoTokensMarker" ;
 NSString* const RPTokenPboardType = @"RPTokenPboardType" ;
 NSString* const RPTabularTokenPboardType = @"RPTabularTokenPboardType" ;
 
-NSRange SSMakeRangeIncludingEndIndexes(int b1, int b2) {
-	int diff, location ;
+NSRange SSMakeRangeIncludingEndIndexes(NSInteger b1, NSInteger b2) {
+	NSInteger diff, location ;
 	if (b2 > b1) {
 		diff = b2 - b1 ;
 		location = b1 ;
@@ -136,7 +129,7 @@ float const tokenBoxTextInset = 2.0 ;
 	return [_token text] ;
 }
 
-- (int)count {
+- (NSInteger)count {
 	return [_token count] ;
 }
 
@@ -179,7 +172,7 @@ float const tokenBoxTextInset = 2.0 ;
 }
 
 - (NSString*)description {
-	return [NSString stringWithFormat:@"bounds=%@; fontSize=%f; count=%d; text=%@", NSStringFromRect([self bounds]), [self fontsize], [self count], [self text]] ;
+	return [NSString stringWithFormat:@"bounds=%@; fontSize=%f; count=%ld; text=%@", NSStringFromRect([self bounds]), [self fontsize], (long)[self count], [self text]] ;
 }
 
 - (void)drawWithAttributes:(NSDictionary*)attr
@@ -232,12 +225,12 @@ float const tokenBoxTextInset = 2.0 ;
 //	NSEnumerator* e = [self objectEnumerator] ;
 //	id object ;
 //	while ((object = [e nextObject])) {
-//		int targetCount = [(NSCountedSet*)self countForObject:object] ;
+//		NSInteger targetCount = [(NSCountedSet*)self countForObject:object] ;
 //		
 //		// Sort by count		
-//		int i ;
+//		NSInteger i ;
 //		for (i=0; i<[counts count]; i++) {
-//			int currentCount = [[counts objectAtIndex:i] intValue] ;
+//			NSInteger currentCount = [[counts objectAtIndex:i] intValue] ;
 //			if (targetCount <= currentCount) {
 //				break ;
 //			}
@@ -325,6 +318,7 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 @synthesize tokenBeingEdited = _tokenBeingEdited ;
 @synthesize delegate = _delegate ;
 @synthesize disallowedCharacterSet = m_disallowedCharacterSet ;
+@synthesize replacementString = m_replacementString ;
 @synthesize tokenizingCharacterSet = m_tokenizingCharacterSet ;
 @synthesize noTokensPlaceholder = m_noTokensPlaceholder ;
 @synthesize noSelectionPlaceholder = m_noSelectionPlaceholder ;
@@ -589,7 +583,7 @@ const float halfRingWidth = 2.0 ;
 	}
 	
 	//order by occurance and get the top n
-	int len = [(NSSet*)tokens count];
+	NSInteger len = [(NSSet*)tokens count];
 	
 	NSMutableArray* myTokens = [[NSMutableArray alloc] init] ;
 	NSEnumerator* e = [(NSSet*)tokens objectEnumerator] ;
@@ -599,7 +593,7 @@ const float halfRingWidth = 2.0 ;
 	if ([tokens respondsToSelector:@selector(countForObject:)]) {
 		// tokens is a NSCountedSet of NSStrings
 		while ((object = [e nextObject])) {
-			int targetCount = [(NSCountedSet*)tokens countForObject:object] ;
+			NSInteger targetCount = [(NSCountedSet*)tokens countForObject:object] ;
 			// Sometimes, if a token is being edited, the above can return 0.
 			// Maybe this is a bug in NSCountedSet.  How can the token of a count
 			// be 0, if it exists in the set???  So, I fix that with this line:
@@ -647,19 +641,20 @@ const float halfRingWidth = 2.0 ;
 	// Create a dictionary for converting token counts to font size, in 2 steps
 	NSMutableDictionary *fontSizesForCounts = [[NSMutableDictionary alloc] init];
 	// Step 1 of 2.  Create a dictionary of key=count and value=rank
-	int lastCnt = 0;
+	NSInteger lastCnt = 0;
 	e = [sortedTokens objectEnumerator];
-	int cnt;
-	while ((cnt = [[e nextObject] count])) {
+	NSInteger cnt;
+	while ((cnt = [(RPCountedToken*)[e nextObject] count])) {
 		if(cnt == lastCnt) {
 			continue ;
 		}
 		lastCnt = cnt;
-		[fontSizesForCounts setObject:[NSNumber numberWithInt:[fontSizesForCounts count]] forKey:[NSNumber numberWithInt:cnt]];
+		[fontSizesForCounts setObject:[NSNumber numberWithInt:[fontSizesForCounts count]]
+							   forKey:[NSNumber numberWithInt:cnt]];
 	}
 	// Dictionary values are now 'rank'.	
 	// Step 2 of 2.  Replace each value, now 'rank', with a fontSize instead
-	int weightMax = [fontSizesForCounts count] ;
+	NSInteger weightMax = [fontSizesForCounts count] ;
 	if(weightMax > 1) weightMax-- ;
 	e = [[fontSizesForCounts allKeys] objectEnumerator] ;
 	// Cannot use -keyEnumerator since we are going to mutate
@@ -668,7 +663,7 @@ const float halfRingWidth = 2.0 ;
 	while (key = [e nextObject]) {
 		float fontSize ;
 		if ([self fixedFontSize] <= 0) {
-			int weight = [[fontSizesForCounts objectForKey:key] intValue];
+			NSInteger weight = [[fontSizesForCounts objectForKey:key] intValue];
 			float v = (weightMax-weight)*1.0/weightMax; // first=1.0, last = 0.0
 			v = v*v; //non-linear curve so as to make the bigger ones even bigger
 			fontSize = _minFontSize + v*(_maxFontSize-_minFontSize) ;
@@ -710,7 +705,7 @@ const float halfRingWidth = 2.0 ;
 	NSMutableArray* truncatedTokens = [self truncatedTokens] ;
 	[truncatedTokens removeAllObjects] ;
 	
-	int i = 0 ;
+	NSInteger i = 0 ;
 	BOOL focusRingLeftOfFirstToken = NO ;
 	_indexOfFramedTokenBeingEdited = NSNotFound ;
 	while (currentToken = [e nextObject]) {
@@ -742,7 +737,7 @@ const float halfRingWidth = 2.0 ;
 				// layout information, to _framedTokens.
 				// The 'gap' is the amount of space between tokens.
 				// In this case it is calculated to justify or "spread" the tokens.
-				int nGaps = [previousLine count] - 1 ;
+				NSInteger nGaps = [previousLine count] - 1 ;
 				float extraWidth = wholeWidth - previousLineTokensWidth ;
 				float gap = minGap + extraWidth/nGaps ;
 				[self layoutLine:previousLine
@@ -752,7 +747,6 @@ const float halfRingWidth = 2.0 ;
 				  focusRingFirst:focusRingLeftOfFirstToken] ;
 				focusRingLeftOfFirstToken = NO ;
 				[_framedTokens addObjectsFromArray:previousLine];
-				[previousLine release] ;
 			}
 			
 			// If superview does not scroll, see if we can fit more tokens
@@ -794,7 +788,7 @@ const float halfRingWidth = 2.0 ;
 				break ;
 			}
 			
-			previousLine = [currentLine copy] ;
+			previousLine = [[currentLine copy] autorelease] ;
 			previousLineTokensWidth = pt.x ;
 			previousLineY = pt.y ;
 			previousLineMaxHeight = maxHeight ;
@@ -830,6 +824,8 @@ const float halfRingWidth = 2.0 ;
 		i++ ;
 	}
 	
+	[fontSizesForCounts release] ;
+	
 	// Add any remaining tokens (which did not fit) to truncatedTokens
 	while (currentToken = [e nextObject]) {
 		[truncatedTokens addObject:currentToken] ;
@@ -839,7 +835,7 @@ const float halfRingWidth = 2.0 ;
 	if ([previousLine count] > 0) {
 		// gap is the amount of space between tokens.
 		// In this case it is calculated for each line to justify or "spread" the tokens.
-		int nGaps = [previousLine count] - 1 ;
+		NSInteger nGaps = [previousLine count] - 1 ;
 		float extraWidth = wholeWidth - previousLineTokensWidth ;
 		float gap = minGap + extraWidth/nGaps ;
 		[self layoutLine:previousLine
@@ -849,7 +845,6 @@ const float halfRingWidth = 2.0 ;
 		  focusRingFirst:focusRingLeftOfFirstToken] ;
 		focusRingLeftOfFirstToken = NO ;
 		[_framedTokens addObjectsFromArray:previousLine];
-		[previousLine release] ;
 	}
 	
 	// Lay out the last line.
@@ -936,7 +931,7 @@ const float halfRingWidth = 2.0 ;
 - (NSIndexSet*)deselectedIndexesSet {
 	// Too bad Apple doesn't provide a -minusSet method for NSIndexSet...
 	NSMutableIndexSet* deselectedIndexesSet = [[NSMutableIndexSet alloc] init] ;
-	int i ;
+	NSInteger i ;
 	id value = [self tokensCollection] ;
 	for (i=0; i<[(NSSet*)value count]; i++) {
 		if (![[self selectedIndexSet] containsIndex:i]) {
@@ -950,7 +945,7 @@ const float halfRingWidth = 2.0 ;
 	return [output autorelease] ;
 }
 
-- (void)selectIndex:(int)index {
+- (void)selectIndex:(NSInteger)index {
 	NSMutableIndexSet* selectedIndexSet = [[self selectedIndexSet] mutableCopy] ;
 	if (![selectedIndexSet containsIndex:index]) {
 		[selectedIndexSet addIndex:index] ;
@@ -962,7 +957,7 @@ const float halfRingWidth = 2.0 ;
 	[selectedIndexSet release] ;
 }
 
-- (void)deselectIndex:(int)index {
+- (void)deselectIndex:(NSInteger)index {
 	NSMutableIndexSet* selectedIndexSet = [[self selectedIndexSet] mutableCopy] ;
 	if ([selectedIndexSet containsIndex:index]) {
 		[selectedIndexSet removeIndex:index] ;
@@ -974,16 +969,16 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (void)selectIndexesInRange:(NSRange)range {
-	int lastIndexToSelect = range.location + range.length - 1;
+	NSInteger lastIndexToSelect = range.location + range.length - 1;
 	NSMutableIndexSet* selectedIndexSet = [[self selectedIndexSet] mutableCopy] ;
 	if (![selectedIndexSet containsIndexesInRange:range]) {
 		
-		int firstIndexToSelect = range.location ;
+		NSInteger firstIndexToSelect = range.location ;
 		NSIndexSet* deselectedIndexesSet = [self deselectedIndexesSet] ;
 		// Loop through those members of the deselectedIndexesSet
 		// which intersect the 'range' of indexes to select
 		// For each one found, select it and mark its box as needing display
-		unsigned int i = [deselectedIndexesSet indexGreaterThanOrEqualToIndex:firstIndexToSelect] ;
+		NSUInteger i = [deselectedIndexesSet indexGreaterThanOrEqualToIndex:firstIndexToSelect] ;
 		while (i<=lastIndexToSelect) {
 			[selectedIndexSet addIndex:i] ;
 			FramedToken* token = [_framedTokens objectAtIndex:i] ;
@@ -1004,7 +999,7 @@ const float halfRingWidth = 2.0 ;
 		
 		// Mark all which are now selected as needing display
 		// since they will all be deselected
-		unsigned int i = [selectedIndexSet firstIndex] ;
+		NSUInteger i = [selectedIndexSet firstIndex] ;
 		while ((i != NSNotFound)) {
 			// If the last token was deleted, its index will still 
 			// be in the selectedIndexSet, so we check that i
@@ -1033,7 +1028,7 @@ const float halfRingWidth = 2.0 ;
 		// Mark all which are now not selected as needing display
 		// since they will all be selected
 		NSIndexSet* deselectedIndexesSet = [self deselectedIndexesSet] ;
-		unsigned int i = [deselectedIndexesSet firstIndex] ;
+		NSUInteger i = [deselectedIndexesSet firstIndex] ;
 		while ((i != NSNotFound)) {
 			FramedToken* token = [_framedTokens objectAtIndex:i] ;
 			[self setNeedsDisplayInRect:[token bounds]] ;
@@ -1048,7 +1043,7 @@ const float halfRingWidth = 2.0 ;
 	[selectedIndexSet release] ;
 }
 
-- (void)setMaxTokensToDisplay:(int)maxTokensToDisplay {
+- (void)setMaxTokensToDisplay:(NSInteger)maxTokensToDisplay {
     _maxTokensToDisplay = maxTokensToDisplay;
 	[self deselectAllIndexes] ;
     [self invalidateLayout];
@@ -1072,9 +1067,13 @@ const float halfRingWidth = 2.0 ;
     _appendCountsToStrings = yn ;
 }
 
-- (void)setEditable:(BOOL)yn {
-	_isEditable = yn ;
-	if (yn) {
+- (RPTokenControlEditability)editability {
+    return m_editablity ;
+}
+
+- (void)setEditability:(RPTokenControlEditability)editability {
+    m_editablity = editability ;
+	if (editability > RPTokenControlEditability1) {
 		[self registerForDefaultDraggedTypes] ;
 	}
 	else {
@@ -1106,7 +1105,7 @@ const float halfRingWidth = 2.0 ;
 	return fixedFontSize ;
 }
 
-- (void)setFixedFontSize:(float)x {
+- (void)setFixedFontSize:(CGFloat)x {
 	@synchronized(self) {
 		m_fixedFontSize = x ;
 	}
@@ -1123,7 +1122,7 @@ const float halfRingWidth = 2.0 ;
 
 #pragma mark * Select/Deselect Tokens
 
-- (BOOL)isSelectedIndex:(int)index {
+- (BOOL)isSelectedIndex:(NSInteger)index {
 	BOOL isSelected = NO ;
 	if (index != NSNotFound) {
 		isSelected = [[self selectedIndexSet] containsIndex:index] ;
@@ -1133,7 +1132,7 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (BOOL)isSelectedFramedToken:(FramedToken*)framedToken {
-	int index = [_framedTokens indexOfObject:framedToken] ;
+	NSInteger index = [_framedTokens indexOfObject:framedToken] ;
 	return [self isSelectedIndex:index] ;
 }
 
@@ -1150,7 +1149,7 @@ const float halfRingWidth = 2.0 ;
 	NSArray* output = [selectedTokens copy] ;
 	[selectedTokens release] ;
 	
-	return output ;
+	return [output autorelease] ;
 }
 
 #pragma mark * Typing In New Tokens
@@ -1236,13 +1235,13 @@ const float halfRingWidth = 2.0 ;
 	// Check for disallowed character
 	NSCharacterSet* disallowedCharacterSet = [self disallowedCharacterSet] ;
 	if (disallowedCharacterSet != nil) {
-		int badCharLocation = [newText rangeOfCharacterFromSet:disallowedCharacterSet].location ;
+		NSInteger badCharLocation = [newText rangeOfCharacterFromSet:disallowedCharacterSet].location ;
 		// Since we check this every time a character is entered, there
 		// should only be one bad character at most
 		if (badCharLocation != NSNotFound) {
 			NSMutableString* fixedToken = [newText mutableCopy] ;
 			[fixedToken replaceCharactersInRange:NSMakeRange(badCharLocation,1)
-									  withString:@"_"] ;
+									  withString:[self replacementString]] ;
 			[textField setStringValue:fixedToken] ;
 			newText = [fixedToken autorelease] ;
 			NSBeep() ;	
@@ -1282,19 +1281,22 @@ const float halfRingWidth = 2.0 ;
 	m_objectValue = nil ;
 	// Now, we trigger KVO
 	[self setObjectValue:tokens] ;
-	[tokens release] ;
+	// The following line was commented out in BookMacster 1.11.6.
+	// I can't figure out why the hell it was in there, but I see no need
+	// for it, and indeed it causes a crash.
+	//	[tokens release] ;  // Note 20120629
 	[[self window] makeFirstResponder:self] ;
 }
 
 #pragma mark * Mouse Handling
 
-- (int)indexOfTokenClosestToPoint:(NSPoint)pt
+- (NSInteger)indexOfTokenClosestToPoint:(NSPoint)pt
 					 excludeToken:(FramedToken*)excludedToken
 			excludeHigherNotLower:(BOOL)excludeHigherNotLower {
 	// The last argument says whether to exclude tokens that
 	// are ^higher^ than excludedToken, or exclude tokens that
 	// are ^lower^ than excludedToken.
-	int index = NSNotFound ;
+	NSInteger index = NSNotFound ;
 	
 	if (
 		(pt.y >= 0.0)
@@ -1303,13 +1305,13 @@ const float halfRingWidth = 2.0 ;
 		&& (pt.x <= [self frame].size.width)
 		) {	
 		FramedToken* framedToken ;
-		float distance ;
-		int direction = excludeHigherNotLower ? +1 : -1 ;
+		float distance = 0.0 ;
+		NSInteger direction = excludeHigherNotLower ? +1 : -1 ;
 		float yLimit = direction * [excludedToken midY] ;
-		int nTokens = [_framedTokens count] ;
+		NSInteger nTokens = [_framedTokens count] ;
 		
 		NSMutableArray* distances = [[NSMutableArray alloc] initWithCapacity:nTokens] ;
-		int i ;
+		NSInteger i ;
 		for (i=0; i<nTokens; i++) {
 			framedToken = [_framedTokens objectAtIndex:i] ;
 			if ((framedToken == excludedToken) || ([framedToken midY]*direction < yLimit)) {
@@ -1365,7 +1367,7 @@ const float halfRingWidth = 2.0 ;
 	return token ;
 }
 
-- (void)scrollIndexToVisible:(int)index {
+- (void)scrollIndexToVisible:(NSInteger)index {
 	if (index < [_framedTokens count]) {
 		NSScrollView* scrollView = [self enclosingScrollView] ;
 		if (scrollView != nil) {
@@ -1395,9 +1397,9 @@ const float halfRingWidth = 2.0 ;
 //		mouse clicks
 //      arrow-key actions
 //		drags of linkDragType objects into the view.
-- (void)changeSelectionPerUserActionAtIndex:(int)index {
+- (void)changeSelectionPerUserActionAtIndex:(NSInteger)index {
 	
-	int nNonEllipsisFramedTokens = [_framedTokens count] ;
+	NSInteger nNonEllipsisFramedTokens = [_framedTokens count] ;
 	if ([self ellipsisTokenIsDisplayed]) {
 		nNonEllipsisFramedTokens-- ;
 	}
@@ -1437,7 +1439,7 @@ const float halfRingWidth = 2.0 ;
 	}
 	
 	if (canSelect) {
-		int unsigned modifierFlags = [[NSApp currentEvent] modifierFlags] ;
+		NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags] ;
 		BOOL shiftKeyDown = ((modifierFlags & NSShiftKeyMask) != 0) ;
 		BOOL cmdKeyDown = ((modifierFlags & NSCommandKeyMask) != 0) ;
 		if (index != NSNotFound) {
@@ -1499,7 +1501,7 @@ const float halfRingWidth = 2.0 ;
 			// User has typed one of the four arrow keys
 			// Change or extend the selection
 			
-			id tokens = [self tokensCollection] ;
+			NSObject <SSYCountability> * tokens = [self tokensCollection] ;
 			if (!tokens) {
 				NSBeep() ;
 				return ;
@@ -1539,7 +1541,7 @@ const float halfRingWidth = 2.0 ;
 				}
 			}
 			
-			int index = NSNotFound ;
+			NSInteger index = NSNotFound ;
 			switch(keyChar) {
 				case NSLeftArrowFunctionKey:
 					if (_lastSelectedIndex == NSNotFound) {
@@ -1581,53 +1583,75 @@ const float halfRingWidth = 2.0 ;
 			// User has clicked the 'escape' key
 			[self deselectAllIndexes] ;
 		}
-		else if (_isEditable) {
-			if (keyChar == NSDeleteCharacter) {
-				// User has clicked the 'delete' key
-				// Delete the selected tokens
-				
-				if ([[self selectedIndexSet] count] > 0) {
-					// Get the tokensToDelete from _framedTokens and selectedIndexSet
-					NSArray* framedTokensToDelete = [_framedTokens objectsAtIndexes:[self selectedIndexSet]] ; 
-					NSArray* stringsToDelete = [framedTokensToDelete valueForKey:@"text"] ;
-					NSMutableSet* tokensToDelete = [[self tokensSet] mutableCopy] ;
-					if (!tokensToDelete) {
-						return ;
-					}
-					[tokensToDelete intersectSet:[NSSet setWithArray:stringsToDelete]] ;
-					
-					// Remove the tokensToDelete from m_tokens
-					id tokens = [self tokensCollection] ;
-					if (!tokens) {
-						// Must be a state marker.  Nothing to delete.
-						return ;
-					}
-					id newTokens = [tokens mutableCopy] ;
-					if ([tokens respondsToSelector:@selector(removeObjectsInArray)]) {
-						// Must be an NSMutableArray
-						[newTokens removeObjectsInArray:[tokensToDelete allObjects]] ;
-					}
-					else if ([tokens respondsToSelector:@selector(minusSet:)]) {
-						// Must be an NSMutableSet
-						[newTokens minusSet:tokensToDelete] ;
-					}
-					// Invoke the KVC-compliant setter
-					[self setObjectValue:newTokens] ;
-					[newTokens release] ;
-					
-					// Deselect the selected tokens
-					[self deselectAllIndexes] ;
-					[self invalidateLayout] ;
-					
-					[[self window] makeFirstResponder:self] ;
-				}
-			}
-			else {
-				[self beginEditingNewTokenWithString:s] ;
-			}
+		else if (
+                 ([self editability] >= RPTokenControlEditability1)
+                 &&
+                 (keyChar == NSDeleteCharacter)) {
+            // Delete the selected tokens            
+            if ([[self selectedIndexSet] count] > 0) {
+                // Get the tokensToDelete from _framedTokens and selectedIndexSet
+                NSArray* framedTokensToDelete = [_framedTokens objectsAtIndexes:[self selectedIndexSet]] ;
+                NSArray* stringsToDelete = [framedTokensToDelete valueForKey:@"text"] ;
+                if (![self tokensSet]) {
+                    return ;
+                }
+                NSMutableSet* tokensToDelete = [[self tokensSet] mutableCopy] ;
+                [tokensToDelete intersectSet:[NSSet setWithArray:stringsToDelete]] ;
+                
+                // Remove the tokensToDelete from m_tokens
+                id tokens = [self tokensCollection] ;
+                if (!tokens) {
+                    // Must be a state marker.  Nothing to delete.
+                    [tokensToDelete release] ;
+                    return ;
+                }
+                id newTokens = [tokens mutableCopy] ;
+                if ([tokens respondsToSelector:@selector(removeObjectsInArray)]) {
+                    // Must be an NSMutableArray
+                    [newTokens removeObjectsInArray:[tokensToDelete allObjects]] ;
+                }
+                else if ([tokens respondsToSelector:@selector(minusSet:)]) {
+                    // Must be an NSMutableSet
+                    // I tried [newTokens minusSet:tokensToDelete] here.  But
+                    // the effect of that is to only reduce the count of the
+                    // target token by 1.  The following is needed to reduce
+                    // the count to 0 and eliminate it entirely…
+                    for (NSString* string in tokensToDelete) {
+                        NSInteger nToRemove = [newTokens countForObject:string] ;
+                       for (NSInteger i=0; i<nToRemove; i++) {
+                            [newTokens removeObject:string] ;
+                        }
+                    }
+                }
+                
+                NSSet* deletedTokens = [NSSet setWithSet:tokensToDelete] ;
+                NSDictionary* userInfo = [NSDictionary dictionaryWithObject:deletedTokens
+                                                                     forKey:RPTokenControlUserDeletedTokensKey] ;
+                [[NSNotificationCenter defaultCenter] postNotificationName:RPTokenControlUserDeletedTokensNotification
+                                                                    object:self
+                                                                  userInfo:userInfo] ;
+                
+                [tokensToDelete release] ;
+                
+                // Invoke the KVC-compliant setter
+                [self setObjectValue:newTokens] ;
+                [newTokens release] ;
+                
+                // Deselect the selected tokens
+                [self deselectAllIndexes] ;
+                [self invalidateLayout] ;
+                
+                [[self window] makeFirstResponder:self] ;
+                }
+                else {
+                    [self beginEditingNewTokenWithString:s] ;
+                }
+            }
+		else if ([self editability] >= RPTokenControlEditability2) {
+            [self beginEditingNewTokenWithString:s] ;
 		}
 	}
-	else if (_isEditable) {
+	else if ([self editability] > RPTokenControlEditability2) {
 		[self beginEditingNewTokenWithString:s] ;
 	}
 }
@@ -1664,7 +1688,7 @@ const float halfRingWidth = 2.0 ;
 		NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil] ;
 		_mouseDownPoint = pt ;
 		FramedToken* clickedFramedToken = [self tokenAtPoint:pt] ;
-		int unsigned modifierFlags = [[NSApp currentEvent] modifierFlags] ;
+		NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags] ;
 		BOOL cmdKeyDown = ((modifierFlags & NSCommandKeyMask) != 0) ;
 		if (clickedFramedToken) {
 			[self changeSelectionPerUserActionAtFramedToken:clickedFramedToken] ;
@@ -1785,7 +1809,7 @@ const float halfRingWidth = 2.0 ;
 		  userData:(void *)userData {
 	NSString* answer ;
 	FramedToken *framedToken = (FramedToken*)userData;
-	int count = [framedToken count] ;
+	NSInteger count = [framedToken count] ;
 	if (count == 0) {
 		// Wants toolTip for the special ellipsisToken
 		NSString* key = _appendCountsToStrings ? @"textWithCountAppended" : @"text" ;
@@ -1793,7 +1817,7 @@ const float halfRingWidth = 2.0 ;
 		answer = [truncatedTokenStrings componentsJoinedByString:@"\n"] ;
 	}
 	else if (_showsCountsAsToolTips) {
-		answer = [NSString stringWithFormat:@"%d", count] ;
+		answer = [NSString stringWithFormat:@"%ld", (long)count] ;
 	}
 	else {
 		// Return the regular view-wide toolTip, which is set by -setToolTip:
@@ -1807,8 +1831,10 @@ const float halfRingWidth = 2.0 ;
 	self = [super initWithFrame:frame];
 	if (self != nil) {
 		[self setObjectValue:SSYNoTokensMarker] ;
-		[self setSelectedIndexSet:[[NSMutableIndexSet alloc] init]] ;
-		[self setEditable:YES] ;
+		NSMutableIndexSet* set = [[NSMutableIndexSet alloc] init] ;
+		[self setSelectedIndexSet:set] ;
+		[set release] ; // Memory leak fixed in BookMacster 1.11
+		[self setEditability:RPTokenControlEditability1] ;
 		
 		[self setMaxTokensToDisplay:NSNotFound] ;
 		[self setMinFontSize:11.0] ;
@@ -1825,6 +1851,7 @@ const float halfRingWidth = 2.0 ;
 	[_linkDragType release] ;
 	[_tokenBeingEdited release] ;
 	[m_disallowedCharacterSet release] ;
+	[m_replacementString release] ;
 	[m_tokenizingCharacterSet release] ;
 	[m_noTokensPlaceholder release] ;
 	[m_noSelectionPlaceholder release] ;
@@ -1845,6 +1872,7 @@ const float halfRingWidth = 2.0 ;
 	// seems to be "left mouse UP".  We want DOWN.
 	
 	[self patchPreLeopardFocusRingDrawingForScrolling] ;
+	[self setReplacementString:@"_"] ;
 }
 
 - (BOOL)isFlipped {
@@ -1885,7 +1913,7 @@ const float halfRingWidth = 2.0 ;
 		[shadow release];
         
 		// Draw tokens that need to be drawn
-        int i = 0 ;
+        NSInteger i = 0 ;
 		for (i=0; i<[_framedTokens count]; i++) {
 			FramedToken *framedToken = [_framedTokens objectAtIndex:i] ;
 			NSRect bounds = [framedToken bounds];
@@ -1923,11 +1951,11 @@ const float halfRingWidth = 2.0 ;
         }
 	}
 	else {
-		NSString* string ;
+		NSString* string = nil;
 		id value = [self objectValue] ;
 		if ([value conformsToProtocol:@protocol(NSFastEnumeration)]) {
 			// value is an empty collection.  That's OK.
-			string = nil ;
+			// Leave string = nil ;
 		}
 		else if (value == SSYNoTokensMarker) {
 			string = [self noTokensPlaceholder] ;

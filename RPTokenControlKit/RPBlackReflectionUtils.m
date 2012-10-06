@@ -1,6 +1,6 @@
 
 // CoreGraphics gradient helpers
-static void _linearColorBlendFunction(void *info, const float *in, float *out) {
+static void _linearColorBlendFunction(void *info, const CGFloat *in, CGFloat *out) {
     const float cut = 0.3;
     float b = (*in - cut)*1.0/(1.0-cut);
     b = (b < 0.0)?0.0:b*b;
@@ -9,7 +9,7 @@ static void _linearColorBlendFunction(void *info, const float *in, float *out) {
     out[2] = 0.8;
     out[3] = b;
 }
-static const float domainAndRange[8] = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0,0.0, 1.0};
+static const CGFloat domainAndRange[8] = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0,0.0, 1.0};
 static const CGFunctionCallbacks linearFunctionCallbacks = {0, &_linearColorBlendFunction, 0};
 
 

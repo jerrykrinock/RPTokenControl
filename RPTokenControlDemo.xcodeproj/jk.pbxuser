@@ -17,7 +17,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					364,
+					482,
 					20,
 					48,
 					43,
@@ -34,8 +34,8 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 325345735;
-			PBXWorkspaceStateSaveDate = 325345735;
+			PBXPerProjectTemplateStateSaveDate = 362709605;
+			PBXWorkspaceStateSaveDate = 362709605;
 		};
 		perUserProjectItems = {
 			480AC05913649CEB0011EF83 /* PBXTextBookmark */ = 480AC05913649CEB0011EF83 /* PBXTextBookmark */;
@@ -44,9 +44,11 @@
 			480AC05C13649CEB0011EF83 /* PBXTextBookmark */ = 480AC05C13649CEB0011EF83 /* PBXTextBookmark */;
 			480AC05D13649CEB0011EF83 /* PBXTextBookmark */ = 480AC05D13649CEB0011EF83 /* PBXTextBookmark */;
 			480AC05E13649CEB0011EF83 /* PBXTextBookmark */ = 480AC05E13649CEB0011EF83 /* PBXTextBookmark */;
-			480AC05F13649CEB0011EF83 /* PBXTextBookmark */ = 480AC05F13649CEB0011EF83 /* PBXTextBookmark */;
-			480AC06013649CEB0011EF83 /* PBXTextBookmark */ = 480AC06013649CEB0011EF83 /* PBXTextBookmark */;
-			480AC06B1364C4680011EF83 /* PBXTextBookmark */ = 480AC06B1364C4680011EF83 /* PBXTextBookmark */;
+			4898EFA0159E82FB00141F40 /* PBXTextBookmark */ = 4898EFA0159E82FB00141F40 /* PBXTextBookmark */;
+			4898EFA1159E82FB00141F40 /* PBXTextBookmark */ = 4898EFA1159E82FB00141F40 /* PBXTextBookmark */;
+			4898F116159FB48A00141F40 /* PBXTextBookmark */ = 4898F116159FB48A00141F40 /* PBXTextBookmark */;
+			4898F117159FB48A00141F40 /* XCBuildMessageTextBookmark */ = 4898F117159FB48A00141F40 /* XCBuildMessageTextBookmark */;
+			4898F12E159FB62F00141F40 /* PBXTextBookmark */ = 4898F12E159FB62F00141F40 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4846E3030D214A4A00767A0A /* Source Control */;
 		userBuildSettings = {
@@ -89,9 +91,9 @@
 	};
 	4801A1680D214EEC00EC697C /* RPCountedToken.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {660, 1008}}";
-			sepNavSelRange = "{623, 13}";
-			sepNavVisRange = "{343, 706}";
+			sepNavIntBoundsRect = "{{0, 0}, {867, 1148}}";
+			sepNavSelRange = "{194, 0}";
+			sepNavVisRange = "{0, 325}";
 		};
 	};
 	4801A1690D214EEC00EC697C /* RPTokenControl.h */ = {
@@ -103,9 +105,9 @@
 	};
 	4801A16A0D214EEC00EC697C /* RPTokenControl.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {984, 30338}}";
-			sepNavSelRange = "{6185, 0}";
-			sepNavVisRange = "{62807, 873}";
+			sepNavIntBoundsRect = "{{0, 0}, {756, 30618}}";
+			sepNavSelRange = "{66154, 0}";
+			sepNavVisRange = "{16778, 1843}";
 			sepNavWindowFrame = "{{38, 78}, {691, 898}}";
 		};
 	};
@@ -118,9 +120,9 @@
 	};
 	4801A1700D214F4B00EC697C /* AppController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {819, 1092}}";
-			sepNavSelRange = "{2094, 0}";
-			sepNavVisRange = "{730, 1464}";
+			sepNavIntBoundsRect = "{{0, 0}, {867, 1036}}";
+			sepNavSelRange = "{2126, 0}";
+			sepNavVisRange = "{1816, 372}";
 		};
 	};
 	480AC05913649CEB0011EF83 /* PBXTextBookmark */ = {
@@ -178,40 +180,10 @@
 		fRef = 4801A1690D214EEC00EC697C /* RPTokenControl.h */;
 		name = "RPTokenControl.h: 355";
 		rLen = 0;
-		rLoc = 14758;
+		rLoc = 15445;
 		rType = 0;
 		vrLen = 784;
 		vrLoc = 14286;
-	};
-	480AC05F13649CEB0011EF83 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4801A16A0D214EEC00EC697C /* RPTokenControl.m */;
-		name = "RPTokenControl.m: 249";
-		rLen = 0;
-		rLoc = 6185;
-		rType = 0;
-		vrLen = 873;
-		vrLoc = 62807;
-	};
-	480AC06013649CEB0011EF83 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4801A1700D214F4B00EC697C /* AppController.m */;
-		name = "AppController.m: 72";
-		rLen = 0;
-		rLoc = 2094;
-		rType = 0;
-		vrLen = 1089;
-		vrLoc = 812;
-	};
-	480AC06B1364C4680011EF83 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4801A1700D214F4B00EC697C /* AppController.m */;
-		name = "AppController.m: 72";
-		rLen = 0;
-		rLoc = 2126;
-		rType = 0;
-		vrLen = 824;
-		vrLoc = 1370;
 	};
 	4846E3000D214A2B00767A0A /* RPTokenControlDemo */ = {
 		isa = PBXExecutable;
@@ -242,6 +214,8 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		variableFormatDictionary = {
+		};
 	};
 	4846E3030D214A4A00767A0A /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -256,6 +230,69 @@
 	4846E3040D214A4A00767A0A /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
+	};
+	4898EF96159E829D00141F40 /* NSObject+SSYBindingsHelp.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {660, 425}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 904}";
+		};
+	};
+	4898EF97159E829D00141F40 /* NSObject+SSYBindingsHelp.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {660, 561}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 408}";
+		};
+	};
+	4898EFA0159E82FB00141F40 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4801A1700D214F4B00EC697C /* AppController.m */;
+		name = "AppController.m: 72";
+		rLen = 0;
+		rLoc = 2126;
+		rType = 0;
+		vrLen = 955;
+		vrLoc = 1234;
+	};
+	4898EFA1159E82FB00141F40 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4898EF96159E829D00141F40 /* NSObject+SSYBindingsHelp.h */;
+		name = "NSObject+SSYBindingsHelp.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 904;
+		vrLoc = 0;
+	};
+	4898F116159FB48A00141F40 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4898EF97159E829D00141F40 /* NSObject+SSYBindingsHelp.m */;
+		name = "NSObject+SSYBindingsHelp.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 408;
+		vrLoc = 0;
+	};
+	4898F117159FB48A00141F40 /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'e' undeclared (first use in this function)";
+		fRef = 4801A16A0D214EEC00EC697C /* RPTokenControl.m */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 638;
+		rType = 1;
+	};
+	4898F12E159FB62F00141F40 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4801A16A0D214EEC00EC697C /* RPTokenControl.m */;
+		name = "RPTokenControl.m: 2191";
+		rLen = 0;
+		rLoc = 66154;
+		rType = 0;
+		vrLen = 1843;
+		vrLoc = 16778;
 	};
 	8D1107260486CEB800E47090 /* RPTokenControlDemo */ = {
 		activeExec = 0;
