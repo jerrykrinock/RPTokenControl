@@ -150,7 +150,8 @@ extern id const SSYNoTokensMarker ;
  If not set, Cocoa uses a default image. </li>
  <li>
  <a name="ivars.delegate"></a>
- <h4>id delegate</h4> 
+ <h4>id delegate</h4>
+ <h5>Dragging</h5>
  If a linkDragType has been set, during a drag which includes a linkDragType
  into the RPTokenControl, RPTokenControl will, after testing that the delegate responds,
  send the following messages to the delegate:
@@ -164,6 +165,11 @@ extern id const SSYNoTokensMarker ;
  return values, see Cocoa's "NSDraggingDestination Protocol Reference" document.
  </li>
  </ul>
+ <h5>Renaming Tokens</h5>
+ If the delegate responds to the RPTokenControlDelegate protocol optional method
+ -tokenControl:renameToken:, a contextual menu item "Rename 'xxx'" will be 
+ available when performing a secondary click on a token, and click that menu
+ item will send a -tokenControl:renameToken: message to the delegate.
  <h3>BINDINGS</h3>
  RPTokenControl has the following bindings exposed:
  <ul>
@@ -208,7 +214,14 @@ extern id const SSYNoTokensMarker ;
  No token will be added, and other drag types on sender's the pasteboard will be ignored.
  <h3>VERSION HISTORY</h3>
  <ul>
- <li>Version 2.1.  20120710.  
+ <li>Version 2.2.  201201203.
+ - Added a contextual menu to tokens, with items "Delete" and, optionally,
+ "Rename".
+ - If editability is < 2, receiving a key down event whose character is the
+ first character of a token now causes the enclosing scroll view, if any,
+ to scroll to the first such token.
+ </li>
+ <li>Version 2.1.  20120710.
  - Removed a -retain which could cause a crash.  See Note 20120629.
  </li>
  <li>Version 2.0.  20100127.  
@@ -275,11 +288,42 @@ typedef enum RPTokenControlEditability_enum RPTokenControlEditability ;
  dictionary of the posted notification will contain one key,
  RPTokenControlUserDeletedTokensKey, whose value is an array of strings
  which are the deleted tokens.
+ 
+ Note added 20121203: This notification nonsense is maybe very stupid.  I'm
+ thinking that I should have instead declared a delegate method for deleting
+ tokens from the data model, following the pattern which I have now used for
+ renaming tokens.
  */
 extern NSString* const RPTokenControlUserDeletedTokensNotification ;
 extern NSString* const RPTokenControlUserDeletedTokensKey ;
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1060) 
+@class RPTokenControl ;
+
+@protocol RPTokenControlDelegate <NSObject>
+
+- (void)tokenControl:(RPTokenControl*)control
+         renameToken:(NSString*)token ;
+
+/*!
+ @brief    Returns a localized title of a contextual menu item which deletes one
+ or more tokens
+ @details  Typically, returns, for example, "Delete 'Foo'" if there is only one
+ token proposed to be deleted, or "Delete 5 Tags" if more than one.
+ 
+ If the delegate does not implement this method, a default, English menu
+ item title will appear in the contextual menu.
+ @param    count  The number of tokens which will be deleted if the user clicks
+ the subject menu item
+ @param    tokenName  If count is 1, the name of the item which may be deleted.
+ Otherwise, an arbitrary string which should be ignored.
+ */
+- (NSString*)menuItemTitleToDeleteTokenControl:(RPTokenControl*)tokenControl
+                                         count:(NSInteger)count
+                                     tokenName:(NSString*)tokenName ;
+
+@end
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1060)
 @interface RPTokenControl : NSControl
 #else
 @interface RPTokenControl : NSControl <NSTextFieldDelegate>
@@ -310,7 +354,7 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 	NSString* m_noSelectionPlaceholder ;
 	NSString* m_multipleValuesPlaceholder ;
 	NSString* m_notApplicablePlaceholder ;
-	id _delegate ;
+	NSObject <RPTokenControlDelegate> * m_delegate ;
 	NSString* _linkDragType ;
 	NSMutableIndexSet* _selectedIndexSet ;
 	NSMutableString* _tokenBeingEdited ;
@@ -324,7 +368,7 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 @property (retain) NSImage* dragImage ;
 @property (retain) NSMutableString* tokenBeingEdited ;
 @property (copy) NSString* linkDragType ;
-@property (assign) id delegate ;
+@property (assign) NSObject <RPTokenControlDelegate> * delegate ;
 @property (retain) NSCharacterSet* disallowedCharacterSet ;
 @property (copy) NSString* replacementString ;
 @property (retain) NSCharacterSet* tokenizingCharacterSet ;

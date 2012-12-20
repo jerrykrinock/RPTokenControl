@@ -1367,15 +1367,19 @@ const float halfRingWidth = 2.0 ;
 	return token ;
 }
 
+- (void)scrollFramedTokenToVisible:(FramedToken *)framedToken {
+    if (framedToken != nil) {
+        NSRect bounds = [framedToken bounds] ;
+        [self scrollRectToVisible:bounds] ;
+    }
+}
+
 - (void)scrollIndexToVisible:(NSInteger)index {
 	if (index < [_framedTokens count]) {
 		NSScrollView* scrollView = [self enclosingScrollView] ;
 		if (scrollView != nil) {
 			FramedToken* framedToken = [_framedTokens objectAtIndex:index] ;
-			if (framedToken != nil) {
-				NSRect bounds = [framedToken bounds] ;
-				[self scrollRectToVisible:bounds] ;
-			}
+			[self scrollFramedTokenToVisible:framedToken];
 		}
 	}
 }
@@ -1479,6 +1483,70 @@ const float halfRingWidth = 2.0 ;
 	
 }
 
+/*
+ Returns YES if any tokens were selected and deleted
+ */
+- (BOOL)deleteSelectedTokens {
+    BOOL didDelete = NO ;
+    if ([[self selectedIndexSet] count] > 0) {
+        // Get the tokensToDelete from _framedTokens and selectedIndexSet
+        NSArray* framedTokensToDelete = [_framedTokens objectsAtIndexes:[self selectedIndexSet]] ;
+        NSArray* stringsToDelete = [framedTokensToDelete valueForKey:@"text"] ;
+        NSMutableSet* tokensToDelete = nil ;
+        if ([self tokensSet]) {
+            tokensToDelete = [[self tokensSet] mutableCopy] ;
+            [tokensToDelete intersectSet:[NSSet setWithArray:stringsToDelete]] ;
+            
+            // Remove the tokensToDelete from m_tokens
+            id tokens = [self tokensCollection] ;
+            if (tokens) {
+                id newTokens = [tokens mutableCopy] ;
+                if ([tokens respondsToSelector:@selector(removeObjectsInArray)]) {
+                    // Must be an NSMutableArray
+                    [newTokens removeObjectsInArray:[tokensToDelete allObjects]] ;
+                }
+                else if ([newTokens respondsToSelector:@selector(minusSet:)]) {
+                    // Must be an NSMutableSet
+                    // I tried [newTokens minusSet:tokensToDelete] here.  But
+                    // the effect of that is to only reduce the count of the
+                    // target token by 1.  The following is needed to reduce
+                    // the count to 0 and eliminate it entirely…
+                    for (NSString* string in tokensToDelete) {
+                        NSInteger nToRemove = [newTokens countForObject:string] ;
+                        for (NSInteger i=0; i<nToRemove; i++) {
+                            [newTokens removeObject:string] ;
+                        }
+                    }
+                }
+                
+                NSSet* deletedTokens = [NSSet setWithSet:tokensToDelete] ;
+                NSDictionary* userInfo = [NSDictionary dictionaryWithObject:deletedTokens
+                                                                     forKey:RPTokenControlUserDeletedTokensKey] ;
+                [[NSNotificationCenter defaultCenter] postNotificationName:RPTokenControlUserDeletedTokensNotification
+                                                                    object:self
+                                                                  userInfo:userInfo] ;
+                
+                // Invoke the KVC-compliant setter
+                [self setObjectValue:newTokens] ;
+                [newTokens release] ;
+                
+                // Deselect the selected tokens
+                [self deselectAllIndexes] ;
+                [self invalidateLayout] ;
+                
+                [[self window] makeFirstResponder:self] ;
+            }
+            
+            didDelete = ([tokensToDelete count] > 0) ;
+        }
+        else {
+            // Must be a state marker.  Nothing to delete.
+        }
+        [tokensToDelete release] ;
+    }
+
+    return didDelete ;
+}
 
 - (void)changeSelectionPerUserActionAtFramedToken:(FramedToken*)framedToken {
 	[self changeSelectionPerUserActionAtIndex:[_framedTokens indexOfObject:framedToken]] ;
@@ -1587,69 +1655,43 @@ const float halfRingWidth = 2.0 ;
                  ([self editability] >= RPTokenControlEditability1)
                  &&
                  (keyChar == NSDeleteCharacter)) {
-            // Delete the selected tokens            
-            if ([[self selectedIndexSet] count] > 0) {
-                // Get the tokensToDelete from _framedTokens and selectedIndexSet
-                NSArray* framedTokensToDelete = [_framedTokens objectsAtIndexes:[self selectedIndexSet]] ;
-                NSArray* stringsToDelete = [framedTokensToDelete valueForKey:@"text"] ;
-                if (![self tokensSet]) {
-                    return ;
-                }
-                NSMutableSet* tokensToDelete = [[self tokensSet] mutableCopy] ;
-                [tokensToDelete intersectSet:[NSSet setWithArray:stringsToDelete]] ;
-                
-                // Remove the tokensToDelete from m_tokens
-                id tokens = [self tokensCollection] ;
-                if (!tokens) {
-                    // Must be a state marker.  Nothing to delete.
-                    [tokensToDelete release] ;
-                    return ;
-                }
-                id newTokens = [tokens mutableCopy] ;
-                if ([tokens respondsToSelector:@selector(removeObjectsInArray)]) {
-                    // Must be an NSMutableArray
-                    [newTokens removeObjectsInArray:[tokensToDelete allObjects]] ;
-                }
-                else if ([tokens respondsToSelector:@selector(minusSet:)]) {
-                    // Must be an NSMutableSet
-                    // I tried [newTokens minusSet:tokensToDelete] here.  But
-                    // the effect of that is to only reduce the count of the
-                    // target token by 1.  The following is needed to reduce
-                    // the count to 0 and eliminate it entirely…
-                    for (NSString* string in tokensToDelete) {
-                        NSInteger nToRemove = [newTokens countForObject:string] ;
-                       for (NSInteger i=0; i<nToRemove; i++) {
-                            [newTokens removeObject:string] ;
-                        }
-                    }
-                }
-                
-                NSSet* deletedTokens = [NSSet setWithSet:tokensToDelete] ;
-                NSDictionary* userInfo = [NSDictionary dictionaryWithObject:deletedTokens
-                                                                     forKey:RPTokenControlUserDeletedTokensKey] ;
-                [[NSNotificationCenter defaultCenter] postNotificationName:RPTokenControlUserDeletedTokensNotification
-                                                                    object:self
-                                                                  userInfo:userInfo] ;
-                
-                [tokensToDelete release] ;
-                
-                // Invoke the KVC-compliant setter
-                [self setObjectValue:newTokens] ;
-                [newTokens release] ;
-                
-                // Deselect the selected tokens
-                [self deselectAllIndexes] ;
-                [self invalidateLayout] ;
-                
-                [[self window] makeFirstResponder:self] ;
-                }
-                else {
-                    [self beginEditingNewTokenWithString:s] ;
-                }
+            BOOL didDelete = [self deleteSelectedTokens] ;            
+            if (!didDelete) {
+                [self beginEditingNewTokenWithString:s] ;
             }
+        }
 		else if ([self editability] >= RPTokenControlEditability2) {
             [self beginEditingNewTokenWithString:s] ;
 		}
+        else if ([s length] > 0) {
+            // This section added in RPTokenControl verison 2.2  (BookMacster 1.12.6)
+            if ([self enclosingScrollView] != nil) {
+                NSArray* candidates = [self selectedTokens] ;
+                if ([candidates count] < 1) {
+                    candidates = [self tokensArray] ;
+                }
+                
+                // Now, the actual work of finding all existing, matching tags
+                NSMutableSet* mutableSet = [[NSMutableSet alloc] init] ;
+                [mutableSet addObjectsFromArray:candidates] ;
+                
+                NSString* prefix = [s substringToIndex:1] ;
+                NSPredicate* predicate = [NSPredicate predicateWithFormat:@"SELF beginswith[cd] %@", prefix] ;
+                [mutableSet filterUsingPredicate:predicate] ;
+                NSArray* filteredCandididates = [mutableSet allObjects] ;
+                [mutableSet release] ;
+                filteredCandididates = [filteredCandididates sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] ;
+                if ([filteredCandididates count] > 0) {
+                    NSString* firstCandidate = [filteredCandididates objectAtIndex:0] ;
+                    for (FramedToken* framedToken in _framedTokens) {
+                        if ([[framedToken text] isEqualToString:firstCandidate]) {
+                            [self scrollFramedTokenToVisible:framedToken] ;
+                            break ;
+                        }
+                    }
+                }
+            }
+        }
 	}
 	else if ([self editability] > RPTokenControlEditability2) {
 		[self beginEditingNewTokenWithString:s] ;
@@ -2148,6 +2190,116 @@ const float halfRingWidth = 2.0 ;
 	if ([delegate respondsToSelector:@selector(draggingExited:)]) {
 		[delegate draggingExited:sender] ;
 	}
+}
+
+
+#pragma mark Contextual Menu Support
+
+- (IBAction)deleteSelectedTokens:(NSMenuItem*)sender {
+    [self deleteSelectedTokens] ;
+}
+
+- (IBAction)renameSelectedToken:(NSMenuItem*)sender {
+    RPCountedToken* token = [sender representedObject] ;
+    [(NSObject <RPTokenControlDelegate> *)[self delegate] tokenControl:self
+                                                   renameToken:[token text]] ;
+}
+
+- (NSString*)menuItemTitleToDeleteTokenControl:(RPTokenControl*)tokenControl
+                                         count:(NSInteger)count
+                                     tokenName:(NSString*)tokenName {
+    NSString *title;
+    NSString* subject ;
+    if (count < 2) {
+        subject = [NSString stringWithFormat:
+                   @"'%@'",
+                   tokenName] ;
+    }
+    else {
+        subject = [NSString stringWithFormat:
+                   @"%ld tokens",
+                   (long)count] ;
+    }
+    title = [NSString stringWithFormat:
+             @"Delete %@",
+             subject] ;
+
+    return title ;
+}
+
+- (void)updateSelectionForEvent:(NSEvent*)event {
+    // The following section is to give expected behavior when user performs
+    // a secondary click on an item without selecting it first.
+    NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil] ;
+    _mouseDownPoint = pt ;
+    FramedToken* clickedFramedToken = [self tokenAtPoint:pt] ;
+    RPCountedToken* countedToken = [clickedFramedToken token] ;
+    if ([[self selectedTokens] indexOfObject:countedToken] == NSNotFound) {
+        NSInteger index = [_framedTokens indexOfObject:clickedFramedToken] ;
+        [self deselectAllIndexes] ;
+        [self selectIndex:index] ;
+    }
+}
+
+- (NSMenu*)menuForEvent:(NSEvent *)event {
+    [self updateSelectionForEvent:event] ;
+    
+    NSMenu* menu ;
+	if ([self isEnabled]) {
+
+		NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil] ;
+		_mouseDownPoint = pt ;
+		FramedToken* clickedFramedToken = [self tokenAtPoint:pt] ;
+        RPCountedToken* countedToken = [clickedFramedToken token] ;
+ 
+        menu = [[[NSMenu alloc] init] autorelease] ;
+        
+        NSMenuItem* menuItem ;
+        NSString* title ;
+        
+        // Menu item for "Delete"
+        NSInteger count = MAX([[self selectedTokens] count], 1) ;
+        NSString* clickedTokenName = [countedToken text] ;
+        if ([[self delegate] respondsToSelector:@selector(menuItemTitleToDeleteTokenControl:count:tokenName:)]) {
+            title = [(id <RPTokenControlDelegate>)[self delegate] menuItemTitleToDeleteTokenControl:self
+                                                                                              count:count
+                                                                                          tokenName:clickedTokenName] ;
+        }
+        else {
+            title = [self menuItemTitleToDeleteTokenControl:self
+                                                      count:count
+                                                  tokenName:clickedTokenName] ;
+        }
+        
+        menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+                    initWithTitle:title
+                    action:@selector(deleteSelectedTokens:)
+                    keyEquivalent:@""] ;
+        [menuItem setTarget:self] ;
+        [menuItem setRepresentedObject:event] ;
+        [menu addItem:menuItem] ;
+        [menuItem release] ;
+        
+        // Menu item for "Rename"
+        if ([[self delegate] respondsToSelector:@selector(tokenControl:renameToken:)]) {
+            title = [NSString stringWithFormat:
+                     @"Rename '%@'",
+                     [countedToken text]] ;
+            menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+                        initWithTitle:title
+                        action:@selector(renameSelectedToken:)
+                        keyEquivalent:@""] ;
+            [menuItem setTarget:self] ;
+            [menuItem setRepresentedObject:countedToken] ;
+            [menu addItem:menuItem] ;
+            [menuItem release] ;
+        }
+    }
+    else {
+        menu = [super menuForEvent:event] ;
+    }
+
+    return menu ;
 }
 
 @end
