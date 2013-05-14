@@ -316,7 +316,7 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 
 @synthesize dragImage = _dragImage ;
 @synthesize tokenBeingEdited = _tokenBeingEdited ;
-@synthesize delegate = _delegate ;
+@synthesize delegate = m_delegate ;
 @synthesize disallowedCharacterSet = m_disallowedCharacterSet ;
 @synthesize replacementString = m_replacementString ;
 @synthesize tokenizingCharacterSet = m_tokenizingCharacterSet ;
@@ -1556,6 +1556,7 @@ const float halfRingWidth = 2.0 ;
  keystroke of a new tag.  After the first keystroke, the field editor
  takes over, and code in controlTextDidChange: gets the result. */
 - (void)keyDown:(NSEvent*)event {
+    BOOL didHandle = NO ;
 	NSString *s = [event charactersIgnoringModifiers] ;
 	unichar keyChar = 0 ;
 	if ([s length] == 1) {
@@ -1646,10 +1647,13 @@ const float halfRingWidth = 2.0 ;
 					break ;
 			}
 			[self changeSelectionPerUserActionAtIndex:index] ;
+            
+            didHandle = YES ;
 		}
 		else if (keyChar == '\e') { // the 0x1b ASCII 'escape'
 			// User has clicked the 'escape' key
 			[self deselectAllIndexes] ;
+            didHandle = YES ;
 		}
 		else if (
                  ([self editability] >= RPTokenControlEditability1)
@@ -1659,13 +1663,15 @@ const float halfRingWidth = 2.0 ;
             if (!didDelete) {
                 [self beginEditingNewTokenWithString:s] ;
             }
+            didHandle = YES ;
         }
 		else if ([self editability] >= RPTokenControlEditability2) {
             [self beginEditingNewTokenWithString:s] ;
+            didHandle = YES ;
 		}
         else if ([s length] > 0) {
             // This section added in RPTokenControl verison 2.2  (BookMacster 1.12.6)
-            if ([self enclosingScrollView] != nil) {
+            if (([self enclosingScrollView] != nil) && (keyChar != NSTabCharacter)) {
                 NSArray* candidates = [self selectedTokens] ;
                 if ([candidates count] < 1) {
                     candidates = [self tokensArray] ;
@@ -1690,12 +1696,19 @@ const float halfRingWidth = 2.0 ;
                         }
                     }
                 }
-            }
+                didHandle = YES ;
+                }
         }
 	}
 	else if ([self editability] > RPTokenControlEditability2) {
 		[self beginEditingNewTokenWithString:s] ;
+        didHandle = YES ;
 	}
+    
+    // Added in verion 2.3 (BookMacster 1.14.4)
+    if (!didHandle) {
+        [super keyDown:event] ;
+    }
 }
 
 // HARD WAY TO SELECT ALL.  Also gets crosstalk between clouds

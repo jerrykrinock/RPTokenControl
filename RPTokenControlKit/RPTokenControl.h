@@ -20,8 +20,7 @@ extern id const SSYNoTokensMarker ;
  <li>
  <h4>id objectValue</h4>
  The tokens displayed in the control.
- May be an NSArray, NSSet or NSCountedSet of tokens, or an NSStateMarker.
- The array elements (tokens) may be NSString or RPCountedToken objects.
+ May be an NSArray, NSSet or NSCountedSet of strings, or an NSStateMarker.
  
  A token is composed of (1) text (a string) and, optionally, (2) a count.
  If  is an NSCountedSet, counts are evaluated with -countForObject:.
@@ -29,8 +28,6 @@ extern id const SSYNoTokensMarker ;
  
  Note: NSCountedSet has some limitations.  For example, you cannot setCount:
  for an object.  The only way to set a members count to N is to add it N times.  Arghhhh.
- Thus, for many applications, a simple collection of RPCountedToken objects may be better
- than an NSCountedSet.
  
  If objectValue is nil, the view will display the No Tokens placeholder.
  
@@ -214,12 +211,25 @@ extern id const SSYNoTokensMarker ;
  No token will be added, and other drag types on sender's the pasteboard will be ignored.
  <h3>VERSION HISTORY</h3>
  <ul>
- <li>Version 2.2.  201201203.
+ <li>Version 2.4.  20130514.
+ - Fixed documentation (in this file) and demo project to reflect the fact that
+ setting the objectValue of RPTokenControl to a set of RPCountedToken objects
+ is no longer supported.
+ - In demo project Build Settings, updated Build Settings to work in Xcode 4.
+ Base SDK is now "Latest Mac OS X", Architectures are now Xcode default instead
+ of ppc + i386.
+ </li>
+ <li>Version 2.3.  20130415.
+ - -keyDown: now forwards un-handled 'tab' key down events to super, as is
+ proper.
+ </li>
+ <li>Version 2.2.  20121203.
  - Added a contextual menu to tokens, with items "Delete" and, optionally,
  "Rename".
  - If editability is < 2, receiving a key down event whose character is the
  first character of a token now causes the enclosing scroll view, if any,
  to scroll to the first such token.
+ - 64-bit clean
  </li>
  <li>Version 2.1.  20120710.
  - Removed a -retain which could cause a crash.  See Note 20120629.
