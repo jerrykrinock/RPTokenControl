@@ -3,11 +3,6 @@
 @implementation RPCountedToken
 - (id)initWithText:(NSString*)text
 			 count:(NSInteger)count {
-#if 11
-    if (![text isKindOfClass:[NSString class]]) {
-        /*SSYDBL*/ NSLog(@"Whoops!") ;
-    }
-#endif
     if((self = [super init])) {
 		_text = [text retain] ;
 		_count = count ;
