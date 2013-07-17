@@ -239,7 +239,8 @@ float const tokenBoxTextInset = 2.0 ;
 //		
 //		RPCountedToken* token = [[RPCountedToken alloc] initWithText:object
 //														 count:targetCount] ;
-//		[tokens insertObject:token atIndex:i]
+//		[tokens insertObject:token atIndex:i] ;
+//      [token release] ;
 //	}
 //	
 //	return tokens ;
@@ -598,9 +599,12 @@ const float halfRingWidth = 2.0 ;
 			// Maybe this is a bug in NSCountedSet.  How can the token of a count
 			// be 0, if it exists in the set???  So, I fix that with this line:
 			targetCount = MAX(targetCount, 1) ;
+
 			token = [[RPCountedToken alloc] initWithText:object
 												   count:targetCount] ;
 			[myTokens addObject:token] ;
+            // Memory leak fixed in BookMacster 1.16.5…
+            [token release] ;
 			
 			if (object == [self tokenBeingEdited]) {
 				countedTokenEditing = token ;
