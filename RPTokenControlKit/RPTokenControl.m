@@ -603,7 +603,7 @@ const float halfRingWidth = 2.0 ;
 			token = [[RPCountedToken alloc] initWithText:object
 												   count:targetCount] ;
 			[myTokens addObject:token] ;
-            // Memory leak fixed in BookMacster 1.16.5…
+            // Memory leak fixed in BookMacster 1.17…
             [token release] ;
 			
 			if (object == [self tokenBeingEdited]) {
