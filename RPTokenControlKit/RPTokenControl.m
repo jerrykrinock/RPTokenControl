@@ -1505,7 +1505,9 @@ const float halfRingWidth = 2.0 ;
             id tokens = [self tokensCollection] ;
             if (tokens) {
                 id newTokens = [tokens mutableCopy] ;
-                if ([tokens respondsToSelector:@selector(removeObjectsInArray)]) {
+                // Missing colon after removeObjectsInArray in next line was
+                // added in BookMacster 1.17.
+                if ([tokens respondsToSelector:@selector(removeObjectsInArray:)]) {
                     // Must be an NSMutableArray
                     [newTokens removeObjectsInArray:[tokensToDelete allObjects]] ;
                 }
