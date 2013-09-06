@@ -2,6 +2,15 @@
 
 extern id const SSYNoTokensMarker ;
 
+#define RPTokenFancyEffectReflection 1
+#define RPTokenFancyEffectShadow     2
+
+enum RPTokenControlTokenColorScheme_enum {
+    RPTokenControlTokenColorSchemeBlue,
+    RPTokenControlTokenColorSchemeWhite
+    } ;
+typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme ;
+
 /*!
  @brief    RPTokenControl is a replacement for NSTokenField.
  It is geared toward looking presenting a nice-looking "Tag Cloud" for bookmarks.
@@ -62,16 +71,37 @@ extern id const SSYNoTokensMarker ;
  Default value is infinite = NSNotFound.
  </li>
  <li>
- <h4> BOOL showsReflections</h4>
+ <h4>BOOL fancyEffects</h4>
  Defines whether or not the view shows a pretty, Leopard-dock-like
- reflection of each token.
- Default value is NO.
+ reflection of each token and/or a shadow.  Pass 0 for no fancy effects.
+ For fancy effects, pass RPTokenFancyEffectReflection and/or
+ RPTokenFancyEffectShadow.  They *or* bitwise (although that would definitely
+ look pretty ridiculous nowadays.)
+ </li>
+ <li>
+ <h4>RPTokenControlTokenColorScheme tokenColorScheme</h4>
+ Determines whether the tokens are blue (like NSTokenField) or white.
+ The default is RPTokenControlColorSchemeBlue.
  </li>
  <li>
  <h4>float backgroundWhiteness</h4>
  Defines the background color drawn in between the tokens.
  Uses grayscale from 0.0=black to 1.0=white.
  Default value is 1.0 (white)
+ </li>
+ <li>
+ <h4>float cornerRadiusFactor</h4>
+ Should be between 0.0 and 0.5.  0.0 means square corners. 0.5 means maximum
+ roundness, like NSTokenField.  Value of 0.2 or less  allows tokens to be
+ packed in as tightly as possible.  Larger values give more loose packing.
+ Default value is 0.5.
+ </li>
+ <li>
+ <h4>float widthPaddingMultiplier</h4>
+ Should be > 1.0.  Indicates the width of the padding between the edge of
+ each token and the text, on the left and right, as a multiple of the
+ corner radius.  1.0 creates the smallest tokens.  3.0 makes roomy tokens,
+ like NSTokenField.  The default value is 3.0.
  </li>
  <li>
  <h4> BOOL appendCountsToStrings</h4>
@@ -211,6 +241,15 @@ extern id const SSYNoTokensMarker ;
  No token will be added, and other drag types on sender's the pasteboard will be ignored.
  <h3>VERSION HISTORY</h3>
  <ul>
+ <li>Version 3.0.  20130830.
+ - Added parameters so that the tokens may be configured to look pretty much
+ like the blue tokens in Apple's NSTokenField, and the property values which do
+ this are now *default* .  Yes, folks: Shadows and reflections are not cool any
+ more.  You can still get them, but you need to modify you code to set the new
+ properties 'fancyEffects' and 'tokenColorScheme' accordingly.  Also,
+ the property 'showsReflections' has been removed.  To replace it, use
+ 'fancyEffects'.
+ </li>
  <li>Version 2.4.  20130514.
  - Fixed documentation (in this file) and demo project to reflect the fact that
  setting the objectValue of RPTokenControl to a set of RPCountedToken objects
@@ -236,8 +275,8 @@ extern id const SSYNoTokensMarker ;
  </li>
  <li>Version 2.0.  20100127.  
  - Now requires Mac OS X 10.5 or later.
- - Known issue: Typing in tokens does not work propely.  I'm using it non-editable
-   at this time.
+ - Known issue: Typing in tokens does not work properly.  I'm using it
+ non-editable at this time.
  - Some bindings support has been added.
  - To be more of a drop-in replacement for NSTokenField, the attribute "tokens" has been changed to
    "objectValue".
@@ -342,8 +381,11 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 	id m_objectValue ;
     NSInteger _maxTokensToDisplay ;
 	NSInteger _firstTokenToDisplay ;
-	NSInteger _showsReflections ;
+	NSInteger _fancyEffects ;
 	float _backgroundWhiteness ;
+    NSInteger _tokenColorScheme ;
+    float _cornerRadiusFactor ;
+    float _widthPaddingMultiplier ;
 	NSInteger _lastSelectedIndex ;
 	BOOL _appendCountsToStrings ;
 	BOOL _showsCountsAsToolTips ;
@@ -425,11 +467,11 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 - (void)setMaxTokensToDisplay:(NSInteger)maxTokensToDisplay ;
 
 /*!
- @brief    setter for the ivar showsReflections
+ @brief    setter for the ivar fancyEffects
  @details  Invoking this method will recalculate the receiver's layout
  and mark the receiver with -setNeedsDisplay.
  */
-- (void)setShowsReflections:(BOOL)yn ;
+- (void)setFancyEffects:(NSInteger)fancyEffects ;
 
 /*!
  @brief    setter for ivar backgroundWhiteness
@@ -437,6 +479,27 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
  and mark the receiver with -setNeedsDisplay.
  */
 - (void)setBackgroundWhiteness:(float)whiteness ;
+
+/*!
+ @brief    setter for ivar tokenColorScheme
+ @details  Invoking this method will recalculate the receiver's layout
+ and mark the receiver with -setNeedsDisplay.
+ */
+- (void)setTokenColorScheme:(RPTokenControlTokenColorScheme)tokenColorScheme ;
+
+/*!
+ @brief    setter for ivar cornerRadiusFactor
+ @details  Invoking this method will recalculate the receiver's layout
+ and mark the receiver with -setNeedsDisplay.
+ */
+- (void)setCornerRadiusFactor:(float)whiteness ;
+
+/*!
+ @brief    setter for ivar widthPaddingMultiplier
+ @details  Invoking this method will recalculate the receiver's layout
+ and mark the receiver with -setNeedsDisplay.
+ */
+- (void)setWidthPaddingMultiplier:(float)widthPaddingMultiplier ;
 
 /*!
  @brief    setter for ivar appendCountsToStrings

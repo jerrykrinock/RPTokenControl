@@ -83,6 +83,8 @@ NSRange SSMakeRangeIncludingEndIndexes(NSInteger b1, NSInteger b2) {
 
 #define TCFillColorAttributeName @"TCFillColorAttributeName"
 #define TCStrokeColorAttributeName @"TCStrokeColorAttributeName"
+#define TCCornerRadiusFactorAttributeName @"TCCornerRadiusFactorAttributeName"
+#define TCWidthPaddingMultiplierAttributeName @"TCWidthPaddingMultiplierAttributeName"
 
 @implementation FramedToken
 
@@ -92,15 +94,29 @@ float const tokenBoxTextInset = 2.0 ;
 	return [NSFont labelFontOfSize:fontSize] ;
 }
 
++ (CGFloat)widthPaddingForHeight:(CGFloat)height
+                        fontSize:(float)fontSize
+              cornerRadiusFactor:(float)cornerRadiusFactor
+          widthPaddingMultiplier:(float)widthPaddingMultiplier {
+    CGFloat widthPadding = height * cornerRadiusFactor * widthPaddingMultiplier ;
+    return widthPadding ;
+}
+
 + (NSSize)boxSizeForToken:(RPCountedToken*)token
 				 fontSize:(float)fontSize
+       cornerRadiusFactor:(float)cornerRadiusFactor
+   widthPaddingMultiplier:(float)widthPaddingMultiplier
 			  appendCount:(BOOL)appendCount {
 	NSDictionary *attr = [NSDictionary dictionaryWithObject:[self fontOfSize:fontSize]
 													 forKey:NSFontAttributeName] ;				
 	NSString *str = appendCount ? [token textWithCountAppended] : [token text] ;
 	NSSize size = [str sizeWithAttributes:attr] ;
-	// Add whitespace around text, using R.P.'s secret formulas:
-	size.width += 2*tokenBoxTextInset + (fontSize * 0.25) ;
+	// Add padding space around text
+    CGFloat widthPadding = [self widthPaddingForHeight:size.height
+                                              fontSize:fontSize
+                                    cornerRadiusFactor:cornerRadiusFactor
+                                widthPaddingMultiplier:widthPaddingMultiplier] ;
+	size.width += (2*tokenBoxTextInset + widthPadding) ;
 	size.height += 2*tokenBoxTextInset ;
 	return size ;
 }
@@ -177,12 +193,13 @@ float const tokenBoxTextInset = 2.0 ;
 
 - (void)drawWithAttributes:(NSDictionary*)attr
 			   appendCount:(BOOL)appendCount {
-    // In the following line, Robert's original code had "+1" appended to _bounds.origin.x and bounds.origin.y.
-	// However, I found that this offset the words to the upper left corner of the rounded rects.  So,
-	// I removed these offsets and now the tokens are centered in the rounded rects.
 	NSRect rect = NSMakeRect(_bounds.origin.x, _bounds.origin.y, _bounds.size.width-3, _bounds.size.height-3) ;
+
+    CGFloat cornerRadiusFactor = [[attr objectForKey:TCCornerRadiusFactorAttributeName] floatValue] ;
+    CGFloat widthPaddingMultiplier = [[attr objectForKey:TCWidthPaddingMultiplierAttributeName] floatValue] ;
+    CGFloat cornerRadius = rect.size.height*cornerRadiusFactor ;
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:rect
-														  radius:rect.size.height*0.2] ;
+														  radius:cornerRadius] ;
     NSColor* color ;
 	
 	color = [attr objectForKey:TCFillColorAttributeName] ;
@@ -193,8 +210,20 @@ float const tokenBoxTextInset = 2.0 ;
 	
     color = [attr objectForKey:TCStrokeColorAttributeName] ;
     if(color) {
+        /*
+         My outlines still look wider than the outlines in NSTokenField.
+         NSBezierPath documentation says that to get the thinnest possible
+         line, set line width to 0.0.  Debugging here, I see that the line
+         width is 1.0, the default I presume.  So I'm going to set it to 0.0,
+         then set it back to the old value after -stroke.  All of this seems to
+         have no effect :(  But according to the documentation, it's the way to,
+         maybe someday, get what we want.
+         */
+        CGFloat oldLineWidth = [path lineWidth] ;
+        [path setLineWidth:0.0] ;
 		[color setStroke] ;
 		[path stroke] ;
+        [path setLineWidth:oldLineWidth] ;
 	}
     
 	// Add font attribute to attr and draw the string
@@ -202,7 +231,13 @@ float const tokenBoxTextInset = 2.0 ;
     [(NSMutableDictionary*)attr setObject:[FramedToken fontOfSize:_fontsize]
 								   forKey:NSFontAttributeName] ;
     NSString* text = appendCount ? [_token textWithCountAppended] : [_token text] ;
-	[text drawAtPoint:NSMakePoint(_bounds.origin.x+1+_fontsize*0.125, _bounds.origin.y+1)
+    
+    CGFloat widthPadding = [FramedToken widthPaddingForHeight:rect.size.height
+                                                     fontSize:_fontsize
+                                           cornerRadiusFactor:cornerRadiusFactor
+                                       widthPaddingMultiplier:widthPaddingMultiplier] ;
+
+	[text drawAtPoint:NSMakePoint(_bounds.origin.x + widthPadding/2, _bounds.origin.y+1)
 	   withAttributes:attr];
 }
 
@@ -268,6 +303,11 @@ float const tokenBoxTextInset = 2.0 ;
 	[self exposeBinding:@"enabled"] ;
 	[self exposeBinding:@"toolTip"] ;
 	[self exposeBinding:@"fixedFontSize"] ;
+	[self exposeBinding:@"cornerRadiusFactor"] ;
+    [self exposeBinding:@"widthPaddingMultiplier"] ;
+    [self exposeBinding:@"appendCountsToStrings"] ;
+	[self exposeBinding:@"tokenColorScheme"] ;
+	[self exposeBinding:@"fancyEffects"] ;
 }
 
 + (NSSet*)keyPathsForValuesAffectingSelectedTokens {
@@ -717,6 +757,8 @@ const float halfRingWidth = 2.0 ;
 								 fromDictionary:fontSizesForCounts] ;
 		NSSize framedTokenSize = [FramedToken boxSizeForToken:currentToken
 													 fontSize:fontSize
+                                           cornerRadiusFactor:_cornerRadiusFactor
+                                       widthPaddingMultiplier:_widthPaddingMultiplier
 												  appendCount:_appendCountsToStrings] ;
 		
 		// If the first token is being edited, provide a little extra margin on the left
@@ -766,6 +808,8 @@ const float halfRingWidth = 2.0 ;
 				
 				framedTokenSize = [FramedToken boxSizeForToken:currentToken
 													  fontSize:fontSize
+                                            cornerRadiusFactor:_cornerRadiusFactor
+                                        widthPaddingMultiplier:_widthPaddingMultiplier
 												   appendCount:_appendCountsToStrings] ;
 				
 				// See if it fits now, and if not, remove tokens previously added
@@ -1053,13 +1097,30 @@ const float halfRingWidth = 2.0 ;
     [self invalidateLayout];
 }
 
-- (void)setShowsReflections:(BOOL)yn {
-    _showsReflections = yn ;
+- (void)setFancyEffects:(NSInteger)fancyEffects {
+    _fancyEffects = fancyEffects ;
     [self setNeedsDisplay:YES] ;
 }
 
 - (void)setBackgroundWhiteness:(float)whiteness {
 	_backgroundWhiteness = whiteness ;
+    [self setNeedsDisplay:YES] ;
+}
+
+- (void)setTokenColorScheme:(RPTokenControlTokenColorScheme)tokenColorScheme {
+	_tokenColorScheme = tokenColorScheme ;
+    [self setNeedsDisplay:YES] ;
+}
+
+- (void)setCornerRadiusFactor:(float)cornerRadiusFactor {
+	_cornerRadiusFactor = cornerRadiusFactor ;
+    [self invalidateLayout];
+    [self setNeedsDisplay:YES] ;
+}
+
+- (void)setWidthPaddingMultiplier:(float)widthPaddingMultiplier {
+	_widthPaddingMultiplier = widthPaddingMultiplier ;
+    [self invalidateLayout];
     [self setNeedsDisplay:YES] ;
 }
 
@@ -1069,6 +1130,8 @@ const float halfRingWidth = 2.0 ;
 
 - (void)setAppendCountsToStrings:(BOOL)yn {
     _appendCountsToStrings = yn ;
+    [self invalidateLayout];
+    [self setNeedsDisplay:YES] ;
 }
 
 - (RPTokenControlEditability)editability {
@@ -1717,23 +1780,6 @@ const float halfRingWidth = 2.0 ;
     }
 }
 
-// HARD WAY TO SELECT ALL.  Also gets crosstalk between clouds
-//- (BOOL)performKeyEquivalent:(NSEvent *)event {
-//	NSString *s = [event charactersIgnoringModifiers] ;
-//	unichar keyChar = 0 ;
-//	BOOL didDo = NO ;
-//	if ([s length] == 1) {
-//		keyChar = [s characterAtIndex:0] ;
-//		if (keyChar == 0x61) { // ASCII 0x61 = 'a'
-//			[self selectAllIndexes] ;
-//			didDo = YES ;
-//		}
-//	}
-
-//	return didDo ;
-//}
-// EASY WAY:
-
 - (IBAction)selectAll:(id)sender {
 	[self selectAllIndexes] ;
 }
@@ -1901,8 +1947,10 @@ const float halfRingWidth = 2.0 ;
 		[self setMinFontSize:11.0] ;
 		[self setMaxFontSize:40.0] ;
 		[self setFixedFontSize:0.0] ;
-		[self setShowsReflections:NO] ;
 		[self setBackgroundWhiteness:1.0] ;
+        [self setTokenColorScheme:RPTokenControlTokenColorSchemeBlue] ;
+        [self setCornerRadiusFactor:0.5] ;
+        [self setWidthPaddingMultiplier:3.0] ;
 	}
 	
 	return self ;
@@ -1951,25 +1999,60 @@ const float halfRingWidth = 2.0 ;
    	
  	if ([_framedTokens count] > 0) {
 		CGContextRef context = NULL;
-        if(!_showsReflections) {
+        if ((_fancyEffects & RPTokenFancyEffectShadow) != 0) {
             context = [[NSGraphicsContext currentContext] graphicsPort];
             CGContextSaveGState(context);
             CGSize cgshOffset = {2.0, -2.0};
             CGContextSetShadow(context, cgshOffset, 1.0);
             CGContextBeginTransparencyLayer(context, NULL);
         }
+        
+        NSColor* fillColor = nil ;
+        NSColor* outlineColor = nil ;
+
         // Create attrDeselected, attributes for deselected tokens
+        switch (_tokenColorScheme) {
+            case RPTokenControlTokenColorSchemeBlue:
+                fillColor = [NSColor colorWithCalibratedRed:214.0/255 green:224.0/255 blue:246.0/255 alpha:1.0] ;
+                outlineColor = [NSColor colorWithCalibratedRed:147.0/255 green:173.0/255 blue:231.0/255 alpha:1.0] ;
+                break ;
+            case RPTokenControlTokenColorSchemeWhite:
+                fillColor = [NSColor whiteColor] ;
+                outlineColor = nil ;
+                break ;
+        }
 		NSDictionary *attrDeselected = [NSDictionary dictionaryWithObjectsAndKeys:
-										[NSColor whiteColor], TCFillColorAttributeName,
+                                        [NSNumber numberWithFloat:_cornerRadiusFactor], TCCornerRadiusFactorAttributeName,
+                                        [NSNumber numberWithFloat:_widthPaddingMultiplier], TCWidthPaddingMultiplierAttributeName,
+                                        fillColor, TCFillColorAttributeName,
+                                        outlineColor, TCStrokeColorAttributeName,  // may be nil
 										nil] ;
+
 		// Create attrSelected, attributes for selected tokens
-		NSShadow *shadow = [[NSShadow alloc] init];
-		[shadow setShadowOffset:NSMakeSize(2.0, -2.0)];
-		[shadow setShadowBlurRadius:2.0];
+		NSShadow *shadow = nil ;
+        if ((_fancyEffects & RPTokenFancyEffectShadow) != 0) {
+            // This appears to add a slight shadow to the text (characters)
+            // I guess it complements the shadow under the token.
+            // Why did Robert apply it to attrSelected and not attrDeselected?
+            shadow = [[NSShadow alloc] init];
+            [shadow setShadowOffset:NSMakeSize(2.0, -2.0)];
+            [shadow setShadowBlurRadius:2.0];
+        }
+        switch (_tokenColorScheme) {
+            case RPTokenControlTokenColorSchemeBlue:
+                fillColor = [NSColor colorWithCalibratedRed:72.0/255 green:116.0/255 blue:231.0/255 alpha:1.0] ;
+                break ;
+            case RPTokenControlTokenColorSchemeWhite:
+                fillColor = [NSColor selectedTextBackgroundColor] ;
+                break ;
+        }
 		NSDictionary *attrSelected = [NSDictionary dictionaryWithObjectsAndKeys:
 									  [NSColor whiteColor], NSForegroundColorAttributeName,
-									  [NSColor selectedTextBackgroundColor], TCFillColorAttributeName,
-									  shadow, NSShadowAttributeName,
+                                      [NSNumber numberWithFloat:_cornerRadiusFactor], TCCornerRadiusFactorAttributeName,
+                                      [NSNumber numberWithFloat:_widthPaddingMultiplier], TCWidthPaddingMultiplierAttributeName,
+									  fillColor, TCFillColorAttributeName,
+                                      // Deselected token does not have an outline, so TCStrokeColorAttributeName is omitted.
+                                      shadow, NSShadowAttributeName,  // may be nil
 									  nil] ;
 		[shadow release];
         
@@ -1990,13 +2073,13 @@ const float halfRingWidth = 2.0 ;
 			if([self isSelectedFramedToken:framedToken]) {
 				[framedToken drawWithAttributes:attrSelected
 									appendCount:_appendCountsToStrings];
-			}				
+			}
 			else {
 				[framedToken drawWithAttributes:attrDeselected
 									appendCount:_appendCountsToStrings] ;
 			}
 			
-            if(_showsReflections) {
+            if ((_fancyEffects & RPTokenFancyEffectReflection) != 0) {
 				NSRect ref = NSMakeRect(bounds.origin.x+1, bounds.origin.y+1, bounds.size.width-3, bounds.size.height-3);
                 ref.origin.y += 2 + ref.size.height;   
                 if(NSIntersectsRect(rect, ref)) {
