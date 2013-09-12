@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>07B59067-4E44-45D8-8909-2D44E0122628</string>
+	<key>IDESourceControlProjectName</key>
+	<string>RPTokenControlDemo</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>91AD5D60-82AD-4EAC-B271-C157DCB2A585</key>
+		<string>https://github.com/jerrykrinock/CategoriesObjC.git</string>
+		<key>B905F3B5-2978-4BD2-ADD3-52632C8926C0</key>
+		<string>https://github.com/jerrykrinock/RPTokenControl.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>RPTokenControlDemo.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>91AD5D60-82AD-4EAC-B271-C157DCB2A585</key>
+		<string>../../../../CategoriesObjC</string>
+		<key>B905F3B5-2978-4BD2-ADD3-52632C8926C0</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/jerrykrinock/RPTokenControl.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>B905F3B5-2978-4BD2-ADD3-52632C8926C0</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>91AD5D60-82AD-4EAC-B271-C157DCB2A585</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CategoriesObjC</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>B905F3B5-2978-4BD2-ADD3-52632C8926C0</string>
+			<key>IDESourceControlWCCName</key>
+			<string>RPTokenControl</string>
+		</dict>
+	</array>
+</dict>
+</plist>
