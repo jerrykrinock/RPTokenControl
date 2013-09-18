@@ -285,7 +285,7 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  - Instead of always changing the selection in response to mouseDown:, the selection is
    now changed in response to mouseDown: if the shift or cmd key is down, but instead
    in response to mouseUp: if the shift or cmd key is not down.  This is the way Apple's
-   apps do it (I checked Safari's Show All Bookmarks and a Finder browser), and allows
+   apps do it (I checked Safari's Edit Bookmarks and a Finder browser), and allows
    a drag of multiple items to be initiated immediately instead of requiring a wonky
    triple-click.
  - When the vertical scroller is not needed, the tag cloud content now increases its
