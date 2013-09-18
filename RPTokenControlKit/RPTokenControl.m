@@ -1817,7 +1817,7 @@ const float halfRingWidth = 2.0 ;
 	[[self window] makeFirstResponder:self] ;
 	
 	BOOL shiftOrCmdKeyDown = (([[NSApp currentEvent] modifierFlags] & (NSShiftKeyMask|NSCommandKeyMask)) != 0) ;
-	// Following Apple's Safari Show All Bookmarks and Finder, we change
+	// Following Apple's Safari Edit Bookmarks and Finder, we change
 	// the selection on mouseDown if a modifier key is down, and on mouse
 	// up if a modifier key is not down.  This allows drags to be
 	// initiated immediately instead of requiring a wonky triple-click.
@@ -1835,7 +1835,7 @@ const float halfRingWidth = 2.0 ;
 
 - (void)mouseUp:(NSEvent*)event {	
 	BOOL shiftOrCmdKeyDown = (([[NSApp currentEvent] modifierFlags] & (NSShiftKeyMask|NSCommandKeyMask)) != 0) ;
-	// Following Apple's Safari Show All Bookmarks and Finder, we change
+	// Following Apple's Safari Edit Bookmarks and Finder, we change
 	// the selection on mouseDown if a modifier key is down, and on mouse
 	// up if a modifier key is not down.  This allows drags to be
 	// initiated immediately instead of requiring a wonky triple-click.
