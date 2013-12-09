@@ -241,6 +241,10 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  No token will be added, and other drag types on sender's the pasteboard will be ignored.
  <h3>VERSION HISTORY</h3>
  <ul>
+ <li>Version 3.1.  20131208.
+ - Added -encodeWithCoder:, -initWithCoder:.  Thanks to crispinb for 
+ noticing this..
+ </li>
  <li>Version 3.0.  20130830.
  - Added parameters so that the tokens may be configured to look pretty much
  like the blue tokens in Apple's NSTokenField, and the property values which do

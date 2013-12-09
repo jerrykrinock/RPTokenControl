@@ -294,6 +294,31 @@ float const tokenBoxTextInset = 2.0 ;
 
 @end
 
+// Constants for ivars used in -initWithCoder, encodeWithCoder:
+
+
+NSString*  constKeyAppendCountsToStrings = @"appendCountsToStrings" ;
+NSString*  constKeyShowsCountsAsToolTips = @"showsCountsAsToolTips" ;
+NSString*  constKeyCanDeleteTags = @"canDeleteTags" ;
+NSString*  constKeyIsDoingLayout = @"isDoingLayout" ;
+NSString*  constKeyTokenizingCharacter = @"tokenizingCharacter" ;
+NSString*  constKeyFirstTokenToDisplay = @"firstTokenToDisplay" ;
+NSString*  constKeyFancyEffects = @"fancyEffects" ;
+NSString*  constKeyDelegate = @"delegate" ;
+NSString*  constKeyDragImage = @"dragImage" ;
+NSString*  constKeyFramedTokens = @"framedTokens" ;
+NSString*  constKeyTruncatedTokens = @"truncatedTokens" ;
+NSString*  constKeyDisallowedCharacterSet = @"disallowedCharacterSet" ;
+NSString*  constKeyTokenizingCharacterSet = @"tokenizingCharacterSet" ;
+NSString*  constKeyReplacementString = @"replacementString" ;
+NSString*  constKeyNoTokensPlaceholder = @"noTokensPlaceholder" ;
+NSString*  constKeyNoSelectionPlaceholder = @"noSelectionPlaceholder" ;
+NSString*  constKeyMultipleValuesPlaceholder = @"multipleValuesPlaceholder" ;
+NSString*  constKeyNotApplicablePlaceholder = @"notApplicablePlaceholder" ;
+NSString*  constKeyLinkDragType = @"linkDragType" ;
+NSString*  constKeyTextField = @"textField" ;
+
+
 @implementation RPTokenControl
 
 #pragma mark * Constants
@@ -1934,27 +1959,96 @@ const float halfRingWidth = 2.0 ;
 	return answer ;
 }
 
+- (void)initCommon {
+    [self setObjectValue:SSYNoTokensMarker] ;
+    NSMutableIndexSet* set = [[NSMutableIndexSet alloc] init] ;
+    [self setSelectedIndexSet:set] ;
+    [set release] ; // Memory leak fixed in BookMacster 1.11
+    [self setEditability:RPTokenControlEditability1] ;
+    
+    [self setMaxTokensToDisplay:NSNotFound] ;
+    [self setMinFontSize:11.0] ;
+    [self setMaxFontSize:40.0] ;
+    [self setFixedFontSize:0.0] ;
+    [self setBackgroundWhiteness:1.0] ;
+    [self setTokenColorScheme:RPTokenControlTokenColorSchemeBlue] ;
+    [self setCornerRadiusFactor:0.5] ;
+    [self setWidthPaddingMultiplier:3.0] ;
+}
+
 - (id) initWithFrame:(NSRect)frame {
 	self = [super initWithFrame:frame];
 	if (self != nil) {
-		[self setObjectValue:SSYNoTokensMarker] ;
-		NSMutableIndexSet* set = [[NSMutableIndexSet alloc] init] ;
-		[self setSelectedIndexSet:set] ;
-		[set release] ; // Memory leak fixed in BookMacster 1.11
-		[self setEditability:RPTokenControlEditability1] ;
-		
-		[self setMaxTokensToDisplay:NSNotFound] ;
-		[self setMinFontSize:11.0] ;
-		[self setMaxFontSize:40.0] ;
-		[self setFixedFontSize:0.0] ;
-		[self setBackgroundWhiteness:1.0] ;
-        [self setTokenColorScheme:RPTokenControlTokenColorSchemeBlue] ;
-        [self setCornerRadiusFactor:0.5] ;
-        [self setWidthPaddingMultiplier:3.0] ;
+		[self initCommon];
 	}
 	
 	return self ;
 }
+
+// Although NSResponder::NSControl subclasses can sometimes get away with not implementing these
+// two methods, not so if the control is used in SSYAlert, because SSYAlert will encode it when
+// adding to its configurations stack.
+
+// @encode(type_spec) is a compiler directive that returns a character string that encodes
+//    the type structure of type_spec.  It can be used as the first argument of can be used as
+//    the first argument of encodeValueOfObjCType:at:
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [super encodeWithCoder:coder] ;
+    
+	[coder encodeBool:_appendCountsToStrings forKey:constKeyAppendCountsToStrings] ;
+	[coder encodeBool:_showsCountsAsToolTips forKey:constKeyShowsCountsAsToolTips] ;
+    [coder encodeBool:m_canDeleteTags forKey:constKeyCanDeleteTags] ;
+	[coder encodeBool:_isDoingLayout forKey:constKeyIsDoingLayout] ;
+	[coder encodeBytes:(const uint8_t*)&m_tokenizingCharacter length:sizeof(unichar) forKey:constKeyTokenizingCharacter] ;
+	[coder encodeInteger:_firstTokenToDisplay forKey:constKeyFirstTokenToDisplay] ;
+	[coder encodeInteger:_fancyEffects forKey:constKeyFancyEffects] ;
+	[coder encodeObject:m_delegate forKey:constKeyDelegate] ;
+	[coder encodeObject:_dragImage forKey:constKeyDragImage] ;
+	[coder encodeObject:_framedTokens forKey:constKeyFramedTokens] ;
+	[coder encodeObject:_truncatedTokens forKey:constKeyTruncatedTokens] ;
+	[coder encodeObject:m_disallowedCharacterSet forKey:constKeyDisallowedCharacterSet] ;
+	[coder encodeObject:m_tokenizingCharacterSet forKey:constKeyTokenizingCharacterSet] ;
+	[coder encodeObject:m_replacementString forKey:constKeyReplacementString] ;
+	[coder encodeObject:m_noTokensPlaceholder forKey:constKeyNoTokensPlaceholder] ;
+	[coder encodeObject:m_noSelectionPlaceholder forKey:constKeyNoSelectionPlaceholder] ;
+	[coder encodeObject:m_multipleValuesPlaceholder forKey:constKeyMultipleValuesPlaceholder] ;
+	[coder encodeObject:m_notApplicablePlaceholder forKey:constKeyNotApplicablePlaceholder] ;
+	[coder encodeObject:_linkDragType forKey:constKeyLinkDragType] ;
+	[coder encodeObject:_textField forKey:constKeyTextField] ;
+}
+
+- (id)initWithCoder:(NSCoder*)coder {
+    self = [super initWithCoder:coder] ;
+	
+    if (self) {
+        NSUInteger betterBeLengthOfUnichar = 2 ;
+        _appendCountsToStrings = [coder decodeBoolForKey:constKeyAppendCountsToStrings] ;
+        _showsCountsAsToolTips = [coder decodeBoolForKey:constKeyShowsCountsAsToolTips] ;
+        m_canDeleteTags = [coder decodeBoolForKey:constKeyCanDeleteTags] ;
+        _isDoingLayout = [coder decodeBoolForKey:constKeyIsDoingLayout] ;
+        m_tokenizingCharacter = (unichar)[coder decodeBytesForKey:constKeyTokenizingCharacter returnedLength:&betterBeLengthOfUnichar] ;
+        _firstTokenToDisplay = [coder decodeIntegerForKey:constKeyFirstTokenToDisplay] ;
+        _fancyEffects = [coder decodeIntegerForKey:constKeyFancyEffects] ;
+        m_delegate = [[coder decodeObjectForKey:constKeyDelegate] retain] ;
+        _dragImage = [[coder decodeObjectForKey:constKeyDragImage] retain] ;
+        _framedTokens = [[coder decodeObjectForKey:constKeyFramedTokens] retain] ;
+        _truncatedTokens = [[coder decodeObjectForKey:constKeyTruncatedTokens] retain] ;
+        m_disallowedCharacterSet = [[coder decodeObjectForKey:constKeyDisallowedCharacterSet] retain] ;
+        m_tokenizingCharacterSet = [[coder decodeObjectForKey:constKeyTokenizingCharacterSet] retain] ;
+        m_replacementString = [[coder decodeObjectForKey:constKeyReplacementString] retain] ;
+        m_noTokensPlaceholder = [[coder decodeObjectForKey:constKeyNoTokensPlaceholder] retain] ;
+        m_noSelectionPlaceholder = [[coder decodeObjectForKey:constKeyNoSelectionPlaceholder] retain] ;
+        m_multipleValuesPlaceholder = [[coder decodeObjectForKey:constKeyMultipleValuesPlaceholder] retain] ;
+        m_notApplicablePlaceholder = [[coder decodeObjectForKey:constKeyNotApplicablePlaceholder] retain] ;
+        _linkDragType = [[coder decodeObjectForKey:constKeyLinkDragType] retain] ;
+        _textField = [[coder decodeObjectForKey:constKeyTextField] retain] ;
+
+        [self initCommon] ;
+    }
+	return self ;
+}
+
 - (void)dealloc {
 	[_dragImage release] ;
 	[_linkDragType release] ;
