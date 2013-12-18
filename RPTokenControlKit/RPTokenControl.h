@@ -243,7 +243,7 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  <ul>
  <li>Version 3.1.  20131208.
  - Added -encodeWithCoder:, -initWithCoder:.  Thanks to crispinb for 
- noticing this..
+ noticing this.
  </li>
  <li>Version 3.0.  20130830.
  - Added parameters so that the tokens may be configured to look pretty much
