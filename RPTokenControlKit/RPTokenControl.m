@@ -364,7 +364,7 @@ NSString*  constKeyTextField = @"textField" ;
 
 - (float)fontSizeForToken:(RPCountedToken*)token
 		   fromDictionary:(NSDictionary*)fontSizesForCounts {
-	NSNumber* sizeObject = [fontSizesForCounts objectForKey:[NSNumber numberWithInt:[token count]]] ;
+	NSNumber* sizeObject = [fontSizesForCounts objectForKey:[NSNumber numberWithInteger:[token count]]] ;
 	float size ;
 	if (sizeObject != nil) {
 		size = [sizeObject floatValue] ;
@@ -718,8 +718,8 @@ const float halfRingWidth = 2.0 ;
 			continue ;
 		}
 		lastCnt = cnt;
-		[fontSizesForCounts setObject:[NSNumber numberWithInt:[fontSizesForCounts count]]
-							   forKey:[NSNumber numberWithInt:cnt]];
+		[fontSizesForCounts setObject:[NSNumber numberWithInteger:[fontSizesForCounts count]]
+							   forKey:[NSNumber numberWithInteger:cnt]];
 	}
 	// Dictionary values are now 'rank'.	
 	// Step 2 of 2.  Replace each value, now 'rank', with a fontSize instead
