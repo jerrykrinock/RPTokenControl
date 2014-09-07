@@ -420,7 +420,6 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 	NSPoint _mouseDownPoint ; // for hysteresis in beginning drag
 }
 
-@property (retain) id objectValue ;
 @property (retain) NSImage* dragImage ;
 @property (retain) NSMutableString* tokenBeingEdited ;
 @property (copy) NSString* linkDragType ;
