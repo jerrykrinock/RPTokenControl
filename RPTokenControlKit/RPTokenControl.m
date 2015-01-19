@@ -2234,7 +2234,8 @@ const float halfRingWidth = 2.0 ;
 	
 	// Draw focus ring if we are firstResponder
 	if ([[self window] firstResponder] == self) {
-/////SPECIAL/////z for BkmkMgrs 1.22.29 /////		[self drawFocusRing] ;
+        // The following line was deleted for the BkmkMgrs 1.22.29 experiment
+		[self drawFocusRing] ;
     }
 }
 
