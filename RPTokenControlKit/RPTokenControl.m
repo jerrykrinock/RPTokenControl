@@ -8,8 +8,8 @@ NSString* const RPTokenControlUserDeletedTokensNotification = @"RPTokenControlUs
 NSString* const RPTokenControlUserDeletedTokensKey = @"RPTokenControlUserDeletedTokensKey" ;
 
 id const SSYNoTokensMarker = @"SSYNoTokensMarker" ;
-NSString* const RPTokenPboardType = @"RPTokenPboardType" ;
-NSString* const RPTabularTokenPboardType = @"RPTabularTokenPboardType" ;
+NSString* const RPTokenControlPasteboardTypeTokens = @"com.sheepsystems.RPTokenControl.tokens" ;
+NSString* const RPTokenControlPasteboardTypeTabularTokens = @"com.sheepsystems.RPTokenControl.tabular-tokens" ;
 
 NSRange SSMakeRangeIncludingEndIndexes(NSInteger b1, NSInteger b2) {
 	NSInteger diff, location ;
@@ -1900,7 +1900,7 @@ const float halfRingWidth = 2.0 ;
 - (void)mouseDragged:(NSEvent *)event {
 	NSImage* dragImage = [self dragImage] ;
 	if (dragImage) {
-		NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil] ;
+		NSPoint pt = [self convertPoint:[event locationInWindow] fromView:self] ;
 		if ([self pointHasOvercomeHysteresis:pt]) {
 			NSArray* selectedTokens = [self selectedTokens] ;
 			if ([selectedTokens count] > 0) {
@@ -1909,31 +1909,49 @@ const float halfRingWidth = 2.0 ;
 				NSPasteboard *pboard ;
 				pboard = [NSPasteboard pasteboardWithName:NSDragPboard] ;
 				[pboard declareTypes:[NSArray arrayWithObjects:
-									  RPTokenPboardType,
-									  RPTabularTokenPboardType,
+									  RPTokenControlPasteboardTypeTokens,
+									  RPTokenControlPasteboardTypeTabularTokens,
 									  NSStringPboardType,
 									  NSTabularTextPboardType, nil]
 							   owner:self] ;
 				[pboard setString:token1
-						  forType:RPTokenPboardType] ;
+						  forType:RPTokenControlPasteboardTypeTokens] ;
 				[pboard setString:tabSeparatedTokens
-						  forType:RPTabularTokenPboardType] ;
+						  forType:RPTokenControlPasteboardTypeTabularTokens] ;
 				[pboard setString:token1
 						  forType:NSStringPboardType] ;
 				[pboard setString:tabSeparatedTokens
 						  forType:NSTabularTextPboardType] ;
 				NSSize dragOffset = NSMakeSize(0.0, 0.0);
-				
-				[self dragImage:[self dragImage]
-							 at:pt
-						 offset:dragOffset
-						  event:event
-					 pasteboard:pboard
-						 source:self
-					  slideBack:YES];
+
+                [[self window] dragImage:[self dragImage]
+                                      at:pt
+                                  offset:dragOffset
+                                   event:event
+                              pasteboard:pboard
+                                  source:self
+                               slideBack:YES] ;
 			}
 		}
 	}
+}
+
+- (NSArray *)writableTypesForPasteboard:(NSPasteboard *)pasteboard {
+    return [NSArray arrayWithObjects:
+            RPTokenControlPasteboardTypeTokens,
+            RPTokenControlPasteboardTypeTabularTokens,
+            NSPasteboardTypeString,      // actually public.utf8-plain-text
+            NSPasteboardTypeTabularText, // actually public.utf8-tab-separated-values-text
+            nil] ;
+}
+
+- (id)pasteboardPropertyListForType:(NSString *)type {
+    NSPasteboard* pboard = [NSPasteboard pasteboardWithName:NSDragPboard] ;
+    id answer = [pboard propertyListForType:type] ;
+    if (!answer) {
+        answer = [pboard stringForType:type] ;
+    }
+    return answer ;
 }
 
 #pragma mark * Superclass Overrides (Basic Infrastructure)

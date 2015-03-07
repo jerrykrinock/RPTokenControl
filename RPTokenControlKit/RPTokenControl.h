@@ -19,8 +19,8 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  <h3>INHERITANCE</h3>
  RPTokenControl is a subclass of NSControl : NSView : NSObject
  <h3>SYSTEM REQUIREMENTS</h3>
- RPTokenControl requires Mac OS 10.5 or later.  It was originally written for Mac OS X 10.3,
- though, so it still has some old-fashioned accessors, etc.
+ RPTokenControl requires Mac OS 10.7 or later.  It was originally written for
+ Mac OS X 10.3, though, so it still has some old-fashioned accessors, etc.
  <h3>KVC-COMPLIANT PROPERTIES</h3>
  The following properties may be set and observed using key-value coding,
  except those noted as read-only may be only observed.
@@ -214,8 +214,8 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  <ol>
  <li>NSStringPboardType: NSString of the last selected token</li>
  <li>NSTabularTextPboardType: tab-separated string of selected tokens</li>
- <li>RPTokenPboardType: same as NSString PboardType</li>
- <li>RPTabularTokenPboardType: same as NSTabularTextPboardType</li>
+ <li>RPTokenControlPasteboardTypeTokens: same as NSString PboardType</li>
+ <li>RPTokenControlPasteboardTypeTabularTokens: same as NSTabularTextPboardType</li>
  </ol>
  Although the payload is the same as the first two types, the last two
  types are provided to distinguish drags from the RPTokenControl from
@@ -226,22 +226,22 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  Dragged tokens are never removed from the RPTokenControl
  <a name="draggingDestination"></a>
  <h3>DRAGGING DESTINATION</h3>
- If system is Mac OS 10.3, or if ivar editability < RPTokenControlEditability2,
- RPTokenControl is not a dragging destination. Attempted drags will return
- NSDragOperationNone.
+ If ivar isEditable=YES, tokens or strings dragged into RPTokenControl will be
+ added to tokens.  They will not be selected.  Drag destination supports only
+ strings, not counts.  New tokens dropped in will have a count of 1.
 
- If system if Mac OS 10.4 or later, and if ivar isEditable=YES,
- tokens or strings dragged into RPTokenControl will be added to tokens.
- They will not be selected.
- Drag destination supports only strings, not counts.
- New tokens dropped in will have a count of 1.
+ If the pasteboard contains an object of the set linkDragType, it will takes
+ precedence.  Behavior will be only as described above in 
+ <a href="#ivars.delegate" target="_blank">delegate</a>. No token will be added,
+ and other drag types on sender's the pasteboard will be ignored.
 
- If the pasteboard contains an object of the set linkDragType, it will takes precedence.
- Behavior will be only as described above in <a href="#ivars.delegate" target="_blank">delegate</a>.
- No token will be added, and other drag types on sender's the pasteboard will be ignored.
  <h3>VERSION HISTORY</h3>
  <ul>
- <li>Version 3.1.  20131208.
+ <li>Version 4.  20150304.
+ - Fixed deprecations to 10.8+ Deployment Target
+ - Now requires OS X 10.7 or later.
+ </li>
+<li>Version 3.1.  20131208.
  - Added -encodeWithCoder:, -initWithCoder:.  Thanks to crispinb for 
  noticing this.
  </li>
@@ -376,12 +376,7 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 
 @end
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1060)
-@interface RPTokenControl : NSControl
-#else
-@interface RPTokenControl : NSControl <NSTextFieldDelegate>
-#endif
-{
+@interface RPTokenControl : NSControl <NSTextFieldDelegate, NSDraggingSource, NSPasteboardWriting> {
 	id m_objectValue ;
     NSInteger _maxTokensToDisplay ;
 	NSInteger _firstTokenToDisplay ;
