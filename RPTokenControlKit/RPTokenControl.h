@@ -376,7 +376,7 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 
 @end
 
-@interface RPTokenControl : NSControl <NSTextFieldDelegate, NSDraggingSource, NSPasteboardWriting> {
+@interface RPTokenControl : NSControl <NSTextFieldDelegate, NSPasteboardWriting> {
 	id m_objectValue ;
     NSInteger _maxTokensToDisplay ;
 	NSInteger _firstTokenToDisplay ;

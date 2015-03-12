@@ -950,12 +950,10 @@ const float halfRingWidth = 2.0 ;
 		[scrollView setHasVerticalScroller:NO] ;
 	}
 	if (scrollView) {
-        frame.size.width = [NSScrollView contentSizeForFrameSize:[scrollView frame].size
-                                         horizontalScrollerClass:([scrollView hasHorizontalScroller] ? [NSScroller class] : nil)
-                                           verticalScrollerClass:([scrollView hasVerticalScroller] ? [NSScroller class] : nil)
-                                                      borderType:[scrollView borderType]
-                                                     controlSize:NSRegularControlSize
-                                                   scrollerStyle:NSScrollerStyleOverlay].width ;
+		frame.size.width = [NSScrollView contentSizeForFrameSize:[scrollView frame].size
+										   hasHorizontalScroller:[scrollView hasHorizontalScroller] // Never been tested with horiz scroller
+											 hasVerticalScroller:[scrollView hasVerticalScroller]
+													  borderType:[scrollView borderType]].width ; 
 	}
 	[self setFrameSize:frame.size] ;
 	_isDoingLayout = NO ;
@@ -1871,18 +1869,8 @@ const float halfRingWidth = 2.0 ;
 	}
 }
 
-- (NSDragOperation)      draggingSession:(NSDraggingSession *)session
-   sourceOperationMaskForDraggingContext:(NSDraggingContext)context {
-    NSDragOperation answer ;
-    switch(context) {
-        case NSDraggingContextOutsideApplication:
-        case NSDraggingContextWithinApplication:
-        default:
-            answer = NSDragOperationCopy ;
-            break;
-    }
-    
-    return answer ;
+- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)isLocal {
+	return NSDragOperationCopy ;
 }
 
 - (BOOL)pointHasOvercomeHysteresis:(NSPoint)point {
