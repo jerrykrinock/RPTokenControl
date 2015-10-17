@@ -1322,7 +1322,8 @@ const float halfRingWidth = 2.0 ;
 		if ([[self tokenizingCharacterSet] characterIsMember:newChar]) {
 			// Found tokenizing character.  End it.
 			[textField setStringValue:[newText substringToIndex:lastIndex]] ;
-			[self controlTextDidEndEditing:nil] ;
+			[self controlTextDidEndEditing:[NSNotification notificationWithName:@"RPTokenControlTextDidChange"
+                                                                         object:nil]] ;
 		}
 	}
 
