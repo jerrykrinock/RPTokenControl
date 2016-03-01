@@ -1844,14 +1844,7 @@ const float halfRingWidth = 2.0 ;
 - (void)mouseDown:(NSEvent*)event {
 	[[self window] makeFirstResponder:self] ;
 	
-	BOOL shiftOrCmdKeyDown = (([[NSApp currentEvent] modifierFlags] & (NSShiftKeyMask|NSCommandKeyMask)) != 0) ;
-	// Following Apple's Safari Edit Bookmarks and Finder, we change
-	// the selection on mouseDown if a modifier key is down, and on mouse
-	// up if a modifier key is not down.  This allows drags to be
-	// initiated immediately instead of requiring a wonky triple-click.
-	if (shiftOrCmdKeyDown) {
-		[self changeSelectionPerMouseEvent:event] ;
-	}
+    [self changeSelectionPerMouseEvent:event] ;
 
 	// Note that we do not invoke super.  If we do, then we do not 
 	// get -mouseDragged: or -mouseDown:.
@@ -1862,14 +1855,6 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (void)mouseUp:(NSEvent*)event {	
-	BOOL shiftOrCmdKeyDown = (([[NSApp currentEvent] modifierFlags] & (NSShiftKeyMask|NSCommandKeyMask)) != 0) ;
-	// Following Apple's Safari Edit Bookmarks and Finder, we change
-	// the selection on mouseDown if a modifier key is down, and on mouse
-	// up if a modifier key is not down.  This allows drags to be
-	// initiated immediately instead of requiring a wonky triple-click.
-	if (!shiftOrCmdKeyDown) {
-		[self changeSelectionPerMouseEvent:event] ;
-	}
 }
 
 - (NSDragOperation)      draggingSession:(NSDraggingSession *)session
