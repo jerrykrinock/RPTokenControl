@@ -11,9 +11,9 @@
 		4801A16D0D214EEC00EC697C /* RPCountedToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 4801A1680D214EEC00EC697C /* RPCountedToken.m */; };
 		4801A16E0D214EEC00EC697C /* RPTokenControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4801A16A0D214EEC00EC697C /* RPTokenControl.m */; };
 		4801A1710D214F4B00EC697C /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4801A1700D214F4B00EC697C /* AppController.m */; };
-		4898EF98159E829D00141F40 /* NSObject+SSYBindingsHelp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898EF97159E829D00141F40 /* NSObject+SSYBindingsHelp.m */; };
 		48D3BB170D2C038C0075C33D /* Documentation in Resources */ = {isa = PBXBuildFile; fileRef = 48D3BAF20D2C038C0075C33D /* Documentation */; };
 		48F3249F0DA2AF0F000A8FFC /* NSView+FocusRing.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F3249E0DA2AF0F000A8FFC /* NSView+FocusRing.m */; };
+		48F38A721C9B0483004A9D5A /* NSObject+SSYBindingsHelp.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F38A711C9B0483004A9D5A /* NSObject+SSYBindingsHelp.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -37,11 +37,12 @@
 		4801A16A0D214EEC00EC697C /* RPTokenControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RPTokenControl.m; sourceTree = "<group>"; };
 		4801A16F0D214F4B00EC697C /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		4801A1700D214F4B00EC697C /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
-		4898EF96159E829D00141F40 /* NSObject+SSYBindingsHelp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+SSYBindingsHelp.h"; path = "../../CategoriesObjC/NSObject+SSYBindingsHelp.h"; sourceTree = SOURCE_ROOT; };
-		4898EF97159E829D00141F40 /* NSObject+SSYBindingsHelp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+SSYBindingsHelp.m"; path = "../../CategoriesObjC/NSObject+SSYBindingsHelp.m"; sourceTree = SOURCE_ROOT; };
 		48D3BAF20D2C038C0075C33D /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Documentation; sourceTree = "<group>"; };
 		48F3249D0DA2AF0F000A8FFC /* NSView+FocusRing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSView+FocusRing.h"; sourceTree = "<group>"; };
 		48F3249E0DA2AF0F000A8FFC /* NSView+FocusRing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSView+FocusRing.m"; sourceTree = "<group>"; };
+		48F38A701C9B0483004A9D5A /* NSObject+SSYBindingsHelp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+SSYBindingsHelp.h"; path = "RPTokenControlKit/NSObject+SSYBindingsHelp.h"; sourceTree = "<group>"; };
+		48F38A711C9B0483004A9D5A /* NSObject+SSYBindingsHelp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+SSYBindingsHelp.m"; path = "RPTokenControlKit/NSObject+SSYBindingsHelp.m"; sourceTree = "<group>"; };
+		48F38A731C9B057B004A9D5A /* SSY+Countability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SSY+Countability.h"; path = "RPTokenControlKit/SSY+Countability.h"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* RPTokenControlDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RPTokenControlDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -154,8 +155,9 @@
 		4898EF9D159E82BE00141F40 /* External Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				4898EF96159E829D00141F40 /* NSObject+SSYBindingsHelp.h */,
-				4898EF97159E829D00141F40 /* NSObject+SSYBindingsHelp.m */,
+				48F38A731C9B057B004A9D5A /* SSY+Countability.h */,
+				48F38A701C9B0483004A9D5A /* NSObject+SSYBindingsHelp.h */,
+				48F38A711C9B0483004A9D5A /* NSObject+SSYBindingsHelp.m */,
 			);
 			name = "External Dependencies";
 			sourceTree = "<group>";
@@ -227,11 +229,11 @@
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				4801A16C0D214EEC00EC697C /* RPBlackReflectionUtils.m in Sources */,
+				48F38A721C9B0483004A9D5A /* NSObject+SSYBindingsHelp.m in Sources */,
 				4801A16D0D214EEC00EC697C /* RPCountedToken.m in Sources */,
 				4801A16E0D214EEC00EC697C /* RPTokenControl.m in Sources */,
 				4801A1710D214F4B00EC697C /* AppController.m in Sources */,
 				48F3249F0DA2AF0F000A8FFC /* NSView+FocusRing.m in Sources */,
-				4898EF98159E829D00141F40 /* NSObject+SSYBindingsHelp.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
