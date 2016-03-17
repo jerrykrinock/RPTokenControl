@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "FF0FF91B21682498190C19B2369E138D9AB054D0",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "FF0FF91B21682498190C19B2369E138D9AB054D0" : 0,
+    "D34290305FBE9C0A306CED15D3AF2C38A1D8BC1C" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "07B59067-4E44-45D8-8909-2D44E0122628",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "FF0FF91B21682498190C19B2369E138D9AB054D0" : "RPTokenControl\/",
+    "D34290305FBE9C0A306CED15D3AF2C38A1D8BC1C" : "..\/CategoriesObjC"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "RPTokenControlDemo",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "RPTokenControlDemo.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jerrykrinock\/CategoriesObjC.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "D34290305FBE9C0A306CED15D3AF2C38A1D8BC1C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jerrykrinock\/RPTokenControl.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "FF0FF91B21682498190C19B2369E138D9AB054D0"
+    }
+  ]
+}
