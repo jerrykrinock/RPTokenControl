@@ -2090,7 +2090,6 @@ const float halfRingWidth = 2.0 ;
 	// We need to  that because the default for an NSControl
 	// seems to be "left mouse UP".  We want DOWN.
 	
-	[self patchPreLeopardFocusRingDrawingForScrolling] ;
 	[self setReplacementString:@"_"] ;
 }
 
