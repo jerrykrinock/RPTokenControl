@@ -20,7 +20,7 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  RPTokenControl is a subclass of NSControl : NSView : NSObject
  <h3>SYSTEM REQUIREMENTS</h3>
  RPTokenControl requires Mac OS 10.7 or later.  It was originally written for
- Mac OS X 10.3, though, so it still has some old-fashioned accessors, etc.
+ macOS 10.3, though, so it still has some old-fashioned accessors, etc.
  <h3>KVC-COMPLIANT PROPERTIES</h3>
  The following properties may be set and observed using key-value coding,
  except those noted as read-only may be only observed.
@@ -259,7 +259,7 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  setting the objectValue of RPTokenControl to a set of RPCountedToken objects
  is no longer supported.
  - In demo project Build Settings, updated Build Settings to work in Xcode 4.
- Base SDK is now "Latest Mac OS X", Architectures are now Xcode default instead
+ Base SDK is now "Latest macOS", Architectures are now Xcode default instead
  of ppc + i386.
  </li>
  <li>Version 2.3.  20130415.
@@ -278,7 +278,7 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  - Removed a -retain which could cause a crash.  See Note 20120629.
  </li>
  <li>Version 2.0.  20100127.  
- - Now requires Mac OS X 10.5 or later.
+ - Now requires macOS 10.5 or later.
  - Known issue: Typing in tokens does not work properly.  I'm using it
  non-editable at this time.
  - Some bindings support has been added.
