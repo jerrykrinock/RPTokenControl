@@ -1021,15 +1021,17 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (void)selectIndex:(NSInteger)index {
-	NSMutableIndexSet* selectedIndexSet = [[self selectedIndexSet] mutableCopy] ;
-	if (![selectedIndexSet containsIndex:index]) {
-		[selectedIndexSet addIndex:index] ;
-		[self setSelectedIndexSet:selectedIndexSet] ;
-		_lastSelectedIndex = index ;
-		FramedToken* framedToken = [_framedTokens objectAtIndex:index] ;
-		[self setNeedsDisplayInRect:[framedToken bounds]] ;
-	}
-	[selectedIndexSet release] ;
+    if (index != NSNotFound) {
+        NSMutableIndexSet* selectedIndexSet = [[self selectedIndexSet] mutableCopy] ;
+        if (![selectedIndexSet containsIndex:index]) {
+            [selectedIndexSet addIndex:index] ;
+            [self setSelectedIndexSet:selectedIndexSet] ;
+            _lastSelectedIndex = index ;
+            FramedToken* framedToken = [_framedTokens objectAtIndex:index] ;
+            [self setNeedsDisplayInRect:[framedToken bounds]] ;
+        }
+        [selectedIndexSet release] ;
+    }
 }
 
 - (void)deselectIndex:(NSInteger)index {
@@ -2462,49 +2464,54 @@ const float halfRingWidth = 2.0 ;
 		NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil] ;
 		_mouseDownPoint = pt ;
 		FramedToken* clickedFramedToken = [self tokenAtPoint:pt] ;
-        RPCountedToken* countedToken = [clickedFramedToken token] ;
- 
-        menu = [[[NSMenu alloc] init] autorelease] ;
-        
-        NSMenuItem* menuItem ;
-        NSString* title ;
-        
-        // Menu item for "Delete"
-        NSInteger count = MAX([[self selectedTokens] count], 1) ;
-        NSString* clickedTokenName = [countedToken text] ;
-        if ([[self delegate] respondsToSelector:@selector(menuItemTitleToDeleteTokenControl:count:tokenName:)]) {
-            title = [(id <RPTokenControlDelegate>)[self delegate] menuItemTitleToDeleteTokenControl:self
-                                                                                              count:count
-                                                                                          tokenName:clickedTokenName] ;
-        }
-        else {
-            title = [self menuItemTitleToDeleteTokenControl:self
-                                                      count:count
-                                                  tokenName:clickedTokenName] ;
-        }
-        
-        menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
-                    initWithTitle:title
-                    action:@selector(deleteSelectedTokens:)
-                    keyEquivalent:@""] ;
-        [menuItem setTarget:self] ;
-        [menuItem setRepresentedObject:event] ;
-        [menu addItem:menuItem] ;
-        [menuItem release] ;
-        
-        // Menu item for "Rename"
-        if ([[self delegate] respondsToSelector:@selector(tokenControl:renameToken:)]) {
-            title = [NSString stringWithFormat:
-                     @"Rename '%@'",
-                     [countedToken text]] ;
+        if (clickedFramedToken) {
+            RPCountedToken* countedToken = [clickedFramedToken token] ;
+            menu = [[[NSMenu alloc] init] autorelease] ;
+            
+            NSMenuItem* menuItem ;
+            NSString* title ;
+            
+            // Menu item for "Delete"
+            NSInteger count = MAX([[self selectedTokens] count], 1) ;
+            NSString* clickedTokenName = [countedToken text] ;
+            if ([[self delegate] respondsToSelector:@selector(menuItemTitleToDeleteTokenControl:count:tokenName:)]) {
+                title = [(id <RPTokenControlDelegate>)[self delegate] menuItemTitleToDeleteTokenControl:self
+                                                                                                  count:count
+                                                                                              tokenName:clickedTokenName] ;
+            }
+            else {
+                title = [self menuItemTitleToDeleteTokenControl:self
+                                                          count:count
+                                                      tokenName:clickedTokenName] ;
+            }
+            
             menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
                         initWithTitle:title
-                        action:@selector(renameSelectedToken:)
+                        action:@selector(deleteSelectedTokens:)
                         keyEquivalent:@""] ;
             [menuItem setTarget:self] ;
-            [menuItem setRepresentedObject:countedToken] ;
+            [menuItem setRepresentedObject:event] ;
             [menu addItem:menuItem] ;
             [menuItem release] ;
+            
+            // Menu item for "Rename"
+            if ([[self delegate] respondsToSelector:@selector(tokenControl:renameToken:)]) {
+                title = [NSString stringWithFormat:
+                         @"Rename '%@'",
+                         [countedToken text]] ;
+                menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+                            initWithTitle:title
+                            action:@selector(renameSelectedToken:)
+                            keyEquivalent:@""] ;
+                [menuItem setTarget:self] ;
+                [menuItem setRepresentedObject:countedToken] ;
+                [menu addItem:menuItem] ;
+                [menuItem release] ;
+            }
+        }
+        else {
+            NSBeep() ;
+            menu = nil ;
         }
     }
     else {
