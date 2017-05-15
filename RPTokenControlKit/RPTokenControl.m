@@ -188,7 +188,12 @@ float const tokenBoxTextInset = 2.0 ;
 }
 
 - (NSString*)description {
-	return [NSString stringWithFormat:@"bounds=%@; fontSize=%f; count=%ld; text=%@", NSStringFromRect([self bounds]), [self fontsize], (long)[self count], [self text]] ;
+	return [NSString stringWithFormat:
+            @"bounds=%@; fontSize=%f; count=%ld; text=%@",
+            NSStringFromRect([self bounds]),
+            [self fontsize],
+            (long)[self count],
+            [self text]] ;
 }
 
 - (void)drawWithAttributes:(NSDictionary*)attr
@@ -292,10 +297,74 @@ float const tokenBoxTextInset = 2.0 ;
 - (void)deselectAllIndexes ;
 - (void)invalidateLayout ;
 
+- (void)changeSelectionPerClickOnFramedToken:(FramedToken*)clickedFramedToken;
+    
+@end
+
+
+@interface FramedTokenAccessibilityElement : NSAccessibilityElement <NSAccessibilityButton> {
+    FramedToken* _framedToken;
+    RPTokenControl* _tokenControl;
+}
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithTokenControl:(RPTokenControl*)tokenControl
+                         framedToken:(FramedToken*)framedToken;
+
+@property (nonatomic, weak) FramedToken* framedToken;
+@property (nonatomic, weak) RPTokenControl* tokenControl;
+
+@end
+
+
+@implementation FramedTokenAccessibilityElement
+
+- (FramedToken*)framedToken {
+    return _framedToken;
+}
+
+- (void)setFramedToken:(FramedToken*)framedToken {
+    _framedToken = framedToken;
+}
+
+- (instancetype)initWithTokenControl:(RPTokenControl*)tokenControl
+                         framedToken:(FramedToken*)framedToken {
+    self = [super init];
+        if (self) {
+            self.tokenControl = tokenControl;
+            self.framedToken = framedToken;
+        }
+    return self;
+}
+
+- (NSRect)accessibilityFrame {
+        return [super accessibilityFrame];
+    }
+
+- (id)accessibilityParent {
+        return [super accessibilityParent];
+    }
+
+- (NSString *)accessibilityLabel {
+    return [NSString stringWithFormat:
+            NSLocalizedString(@"Tag named %@ with count %ld", nil),
+            [self.framedToken text],
+            [self.framedToken count]];
+}
+
+- (BOOL)accessibilityPerformPress {
+    [self.tokenControl changeSelectionPerClickOnFramedToken:self.framedToken];
+    return YES;
+}
+
+- (BOOL)isAccessibilityEnabled {
+    return YES;
+}
+
 @end
 
 // Constants for ivars used in -initWithCoder, encodeWithCoder:
-
 
 NSString*  constKeyAppendCountsToStrings = @"appendCountsToStrings" ;
 NSString*  constKeyShowsCountsAsToolTips = @"showsCountsAsToolTips" ;
@@ -1820,27 +1889,31 @@ const float halfRingWidth = 2.0 ;
 	return [self isEnabled] ;
 }
 
+- (void)changeSelectionPerClickOnFramedToken:(FramedToken*)clickedFramedToken {
+    NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags] ;
+    BOOL cmdKeyDown = ((modifierFlags & NSCommandKeyMask) != 0) ;
+    if (clickedFramedToken) {
+        [self changeSelectionPerUserActionAtFramedToken:clickedFramedToken] ;
+    }
+    else if (!cmdKeyDown) {
+        [self deselectAllIndexes] ;
+    }
+    else {
+        // cmdKeyDown but no token clicked
+        // do nothing
+    }
+
+    [self sendAction:[self action]
+                  to:[self target]] ;
+}
+
 - (void)changeSelectionPerMouseEvent:(NSEvent*)event {
 	if ([self isEnabled]) {
 		NSPoint pt = [self convertPoint:[event locationInWindow] fromView:nil] ;
 		_mouseDownPoint = pt ;
 		FramedToken* clickedFramedToken = [self tokenAtPoint:pt] ;
-		NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags] ;
-		BOOL cmdKeyDown = ((modifierFlags & NSCommandKeyMask) != 0) ;
-		if (clickedFramedToken) {
-			[self changeSelectionPerUserActionAtFramedToken:clickedFramedToken] ;
-		}
-		else if (!cmdKeyDown) {
-			[self deselectAllIndexes] ;
-		}
-		else {
-			// cmdKeyDown but no token clicked
-			// do nothing
-		}
-		
-		[self sendAction:[self action]
-					  to:[self target]] ;
-	}
+        [self changeSelectionPerClickOnFramedToken:clickedFramedToken];
+    }
 }
 
 - (void)mouseDown:(NSEvent*)event {
@@ -2520,5 +2593,26 @@ const float halfRingWidth = 2.0 ;
 
     return menu ;
 }
+
+- (NSArray*)accessibilityChildren {
+    NSMutableArray* accessibilityChildren = [NSMutableArray new];
+    for (FramedToken* framedToken in _framedTokens) {
+        FramedTokenAccessibilityElement* child = [[FramedTokenAccessibilityElement alloc] initWithTokenControl:self
+                                                                                                       framedToken:framedToken];
+        child.accessibilityParent = self;
+        child.accessibilityFrameInParentSpace = [framedToken bounds];
+
+        [accessibilityChildren addObject:child];
+        [child release];
+    }
+
+    NSArray* answer = [accessibilityChildren copy];
+    [accessibilityChildren release];
+    [answer autorelease];
+
+    return answer;
+}
+
+
 
 @end

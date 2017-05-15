@@ -36,15 +36,16 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  In other collections, NSString objects have an implied count of 1.
  
  Note: NSCountedSet has some limitations.  For example, you cannot setCount:
- for an object.  The only way to set a members count to N is to add it N times.  Arghhhh.
+ for an object.  The only way to set a members count to N is to add it N times.
+
  
  If objectValue is nil, the view will display the No Tokens placeholder.
  
  </li>
  <li>
  <h4>NSMutableIndexSet* selectedIndexSet</h4>
- Index set giving the indexes of tokens that are selected (highlighted) in the RPTokenControl.
- "Safe" accessors which make immutable copies are available.
+ Index set giving the indexes of tokens that are selected (highlighted) in the
+ RPTokenControl.  "Safe" accessors which make immutable copies are available.
  </li>
  <li>
  <h4>NSArray* selectedTokens</h4>
@@ -376,7 +377,12 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 
 @end
 
-@interface RPTokenControl : NSControl <NSTextFieldDelegate, NSDraggingSource, NSPasteboardWriting> {
+@interface RPTokenControl : NSControl <
+    NSTextFieldDelegate,
+    NSDraggingSource,
+    NSPasteboardWriting,
+    NSAccessibilityGroup
+    > {
 	id m_objectValue ;
     NSInteger _maxTokensToDisplay ;
 	NSInteger _firstTokenToDisplay ;
