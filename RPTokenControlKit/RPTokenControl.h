@@ -238,6 +238,10 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
 
  <h3>VERSION HISTORY</h3>
  <ul>
+ <li>Version 5.  20170523.
+ - Added VoiceOver (accessibility) support
+ - Now compiles with Automatic Reference Counting or not, instead of just not.
+ </li>
  <li>Version 4.  20150304.
  - Fixed deprecations to 10.8+ Deployment Target
  - Now requires OS X 10.7 or later.
@@ -378,47 +382,49 @@ extern NSString* const RPTokenControlUserDeletedTokensKey ;
 @end
 
 @interface RPTokenControl : NSControl <
-    NSTextFieldDelegate,
-    NSDraggingSource,
-    NSPasteboardWriting,
-    NSAccessibilityGroup
-    > {
-	id m_objectValue ;
+NSTextFieldDelegate,
+NSDraggingSource,
+NSPasteboardWriting,
+NSAccessibilityGroup
+> {
+    id m_objectValue ;
     NSInteger _maxTokensToDisplay ;
-	NSInteger _firstTokenToDisplay ;
-	NSInteger _fancyEffects ;
-	float _backgroundWhiteness ;
+    NSInteger _firstTokenToDisplay ;
+    NSInteger _fancyEffects ;
+    float _backgroundWhiteness ;
     NSInteger _tokenColorScheme ;
     float _cornerRadiusFactor ;
     float _widthPaddingMultiplier ;
-	NSInteger _lastSelectedIndex ;
-	BOOL _appendCountsToStrings ;
-	BOOL _showsCountsAsToolTips ;
-	float _minFontSize ;
-	float _maxFontSize ;
-	CGFloat m_fixedFontSize ;
-	RPTokenControlEditability m_editablity ;
+    NSInteger _lastSelectedIndex ;
+    BOOL _appendCountsToStrings ;
+    BOOL _showsCountsAsToolTips ;
+    float _minFontSize ;
+    float _maxFontSize ;
+    CGFloat m_fixedFontSize ;
+    RPTokenControlEditability m_editablity ;
     BOOL m_canDeleteTags ;
-	
-	NSImage* _dragImage ;
-	NSMutableArray* _framedTokens ;
-	NSMutableArray* _truncatedTokens ;
-	NSCharacterSet* m_disallowedCharacterSet ;
-	NSString* m_replacementString ;
-	NSCharacterSet* m_tokenizingCharacterSet ;
-	unichar m_tokenizingCharacter ;
-	NSString* m_noTokensPlaceholder ;
-	NSString* m_noSelectionPlaceholder ;
-	NSString* m_multipleValuesPlaceholder ;
-	NSString* m_notApplicablePlaceholder ;
-	NSObject <RPTokenControlDelegate> * m_delegate ;
-	NSString* _linkDragType ;
-	NSMutableIndexSet* _selectedIndexSet ;
-	NSMutableString* _tokenBeingEdited ;
-	NSInteger _indexOfFramedTokenBeingEdited ;
-	NSTextField* _textField ;
-	BOOL _isDoingLayout ;
-	NSPoint _mouseDownPoint ; // for hysteresis in beginning drag
+    NSArray* _accessibilityChildren;
+
+
+    NSImage* _dragImage ;
+    NSMutableArray* _framedTokens ;
+    NSMutableArray* _truncatedTokens ;
+    NSCharacterSet* m_disallowedCharacterSet ;
+    NSString* m_replacementString ;
+    NSCharacterSet* m_tokenizingCharacterSet ;
+    unichar m_tokenizingCharacter ;
+    NSString* m_noTokensPlaceholder ;
+    NSString* m_noSelectionPlaceholder ;
+    NSString* m_multipleValuesPlaceholder ;
+    NSString* m_notApplicablePlaceholder ;
+    NSObject <RPTokenControlDelegate> * m_delegate ;
+    NSString* _linkDragType ;
+    NSMutableIndexSet* _selectedIndexSet ;
+    NSMutableString* _tokenBeingEdited ;
+    NSInteger _indexOfFramedTokenBeingEdited ;
+    NSTextField* _textField ;
+    BOOL _isDoingLayout ;
+    NSPoint _mouseDownPoint ; // for hysteresis in beginning drag
 }
 
 @property (retain) NSImage* dragImage ;

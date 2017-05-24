@@ -67,7 +67,9 @@ NSRange SSMakeRangeIncludingEndIndexes(NSInteger b1, NSInteger b2) {
 	}
 	
 	NSSet* output = [strings copy] ;
-	[strings release] ;
+#if !__has_feature(objc_arc)
+	[strings release];
+#endif
 	
 	return [output autorelease] ;
 }
@@ -125,14 +127,18 @@ float const tokenBoxTextInset = 2.0 ;
 				  fontsize:(float)f
 					bounds:(NSRect)b {
 	if((self = [super init])) {
+#if !__has_feature(objc_arc)
 		_token = [token retain] ;
-		_fontsize = f;
+#endif
+        _fontsize = f;
 		_bounds = b;
 	}
 	return self;
 }
 - (void)dealloc {
+#if !__has_feature(objc_arc)
 	[_token release];
+#endif
 
 	[super dealloc];
 }
@@ -280,7 +286,9 @@ float const tokenBoxTextInset = 2.0 ;
 //		RPCountedToken* token = [[RPCountedToken alloc] initWithText:object
 //														 count:targetCount] ;
 //		[tokens insertObject:token atIndex:i] ;
-//      [token release] ;
+//#if !__has_feature(objc_arc)
+//      [token release];
+//#endif
 //	}
 //	
 //	return tokens ;
@@ -291,12 +299,9 @@ float const tokenBoxTextInset = 2.0 ;
 
 @interface RPTokenControl (Private)
 
-// I try and order methods so that declarations are not required 
-// for private methods to eliminate compiler warnings,
-// but sometimes you just need one or two...
-- (void)deselectAllIndexes ;
-- (void)invalidateLayout ;
-
+- (void)deselectAllIndexes;
+- (void)invalidateLayout;
+- (BOOL)isSelectedFramedToken:(FramedToken*)framedToken;
 - (void)changeSelectionPerClickOnFramedToken:(FramedToken*)clickedFramedToken;
     
 @end
@@ -312,7 +317,16 @@ float const tokenBoxTextInset = 2.0 ;
 - (instancetype)initWithTokenControl:(RPTokenControl*)tokenControl
                          framedToken:(FramedToken*)framedToken;
 
-@property (nonatomic, weak) FramedToken* framedToken;
+/* `framedToken` is strong/retain because the framedToken objects are often
+ destroyed and replaced with new ones (in -doLayout).  (I tested that this does
+ not cause a retain cycle – all initted FramedToken objects are eventually
+ deallocced. */
+#if __has_feature(objc_arc)
+@property (nonatomic, strong) FramedToken* framedToken;
+#else
+@property (nonatomic, retain) FramedToken* framedToken;
+#endif
+
 @property (nonatomic, weak) RPTokenControl* tokenControl;
 
 @end
@@ -334,23 +348,48 @@ float const tokenBoxTextInset = 2.0 ;
         if (self) {
             self.tokenControl = tokenControl;
             self.framedToken = framedToken;
+#if !__has_feature(objc_arc)
+            [framedToken retain];
+#endif
         }
     return self;
 }
 
-- (NSRect)accessibilityFrame {
-        return [super accessibilityFrame];
-    }
+- (void)dealloc {
+#if !__has_feature(objc_arc)
+    [_framedToken release];
+#endif
 
+    [super dealloc];
+}
+
+/* Per documentation, and Xcode warnings, this method must be implemented even
+ though all it does is to invoke super. */
+- (NSRect)accessibilityFrame {
+    return [super accessibilityFrame];
+}
+
+/* Per documentation, and Xcode warnings, this method must be implemented even
+ though all it does is to invoke super. */
 - (id)accessibilityParent {
-        return [super accessibilityParent];
-    }
+    return [super accessibilityParent];
+}
 
 - (NSString *)accessibilityLabel {
+    NSString* selectionStatus;
+    if ([self.tokenControl isSelectedFramedToken:self.framedToken]) {
+        selectionStatus = [NSString stringWithFormat:
+                           @", %@",
+                           NSLocalizedString(@"selected", nil)];
+    }
+    else {
+        selectionStatus = @"";
+    }
     return [NSString stringWithFormat:
-            NSLocalizedString(@"Tag named %@ with count %ld", nil),
+            NSLocalizedString(@"Tag named %@ with count %ld%@", nil),
             [self.framedToken text],
-            [self.framedToken count]];
+            [self.framedToken count],
+            selectionStatus];
 }
 
 - (BOOL)accessibilityPerformPress {
@@ -547,7 +586,11 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 - (id)objectValue {
 	id objectValue ;
 	@synchronized(self) {
-		objectValue = [[m_objectValue retain] autorelease] ; ;
+        objectValue = m_objectValue;
+#if !__has_feature(objc_arc)
+        [m_objectValue retain];
+        [m_objectValue autorelease] ;
+#endif
 	}
 	return objectValue ;
 }
@@ -588,8 +631,10 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 		
 		// If only some count(s) changed, but the strings remained the
 		// same, we can keep the selection and layout, and do not trigger KVO
+#if !__has_feature(objc_arc)
 		[newTokens retain] ;
-		if (substantiveChange) {
+#endif
+        if (substantiveChange) {
 			[self willChangeValueForKey:@"objectValue"];
 		}
 		
@@ -606,8 +651,10 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
     if (substantiveChange) {
 		[self didChangeValueForKey:@"objectValue"];
 	}
-	// Now it is safe to do this:
-	[oldTokens release] ;
+#if !__has_feature(objc_arc)
+    // Now it is safe to do this:
+	[oldTokens release];
+#endif
 	
 	if (substantiveChange) {
 		// String(s) changed
@@ -642,9 +689,13 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 }
 
 - (void)setLinkDragType:(NSString *)newLinkDragType {
+#if !__has_feature(objc_arc)
     [newLinkDragType retain] ;
-	@synchronized(self) {
-		[_linkDragType release] ;
+#endif
+    @synchronized(self) {
+#if !__has_feature(objc_arc)
+		[_linkDragType release];
+#endif
 		_linkDragType = newLinkDragType ;
 		if (_linkDragType != nil) {
 			[self registerForDraggedTypes:[NSArray arrayWithObject:_linkDragType]] ;
@@ -737,8 +788,9 @@ const float halfRingWidth = 2.0 ;
 			token = [[RPCountedToken alloc] initWithText:object
 												   count:targetCount] ;
 			[myTokens addObject:token] ;
-            // Memory leak fixed in BookMacster 1.17…
-            [token release] ;
+#if !__has_feature(objc_arc)
+            [token release];
+#endif
 			
 			if (object == [self tokenBeingEdited]) {
 				countedTokenEditing = token ;
@@ -753,7 +805,9 @@ const float halfRingWidth = 2.0 ;
 				token = [[RPCountedToken alloc] initWithText:object
 													   count:1] ;
 				[myTokens addObject:token] ;
-				[token release] ;
+#if !__has_feature(objc_arc)
+				[token release];
+#endif
 			}
 			else {
 				token = object ;
@@ -767,7 +821,9 @@ const float halfRingWidth = 2.0 ;
 	}
 	// Sort tokens by their counts
 	NSArray* sortedTokens = [myTokens sortedArrayUsingSelector:@selector(countCompare:)] ;
-	[myTokens release] ;
+#if !__has_feature(objc_arc)
+	[myTokens release];
+#endif
 	
 	// Truncate the sortedTokens array to _maxTokensToDisplay
 	NSRange displayedTokenRange = NSMakeRange(_firstTokenToDisplay, (len<_maxTokensToDisplay) ? len : _maxTokensToDisplay) ;
@@ -925,7 +981,9 @@ const float halfRingWidth = 2.0 ;
 																			fontsize:fontSize
 																			  bounds:NSMakeRect(0, 0, framedTokenSize.width, framedTokenSize.height)];
 				[currentLine addObject:framedToken] ;
-				[framedToken release] ;
+#if !__has_feature(objc_arc)
+				[framedToken release];
+#endif
 				
 				break ;
 			}
@@ -949,7 +1007,9 @@ const float halfRingWidth = 2.0 ;
 																	fontsize:fontSize
 																	  bounds:NSMakeRect(0, 0, framedTokenSize.width, framedTokenSize.height)];
 		[currentLine addObject:framedToken] ;
-		[framedToken release] ;
+#if !__has_feature(objc_arc)
+		[framedToken release];
+#endif
 		
 		if(pt.x > 0) {
 			pt.x += minGap ;
@@ -965,8 +1025,10 @@ const float halfRingWidth = 2.0 ;
 		}
 		i++ ;
 	}
-	
-	[fontSizesForCounts release] ;
+
+#if !__has_feature(objc_arc)
+	[fontSizesForCounts release];
+#endif
 	
 	// Add any remaining tokens (which did not fit) to truncatedTokens
 	while (currentToken = [e nextObject]) {
@@ -1000,7 +1062,9 @@ const float halfRingWidth = 2.0 ;
 		  focusRingFirst:focusRingLeftOfFirstToken] ;			
 	}
 	[_framedTokens addObjectsFromArray:currentLine] ;
-	[currentLine release] ;
+#if !__has_feature(objc_arc)
+	[currentLine release];
+#endif
 	
 	// If in a scroll view, increase heght and add scroller if needed
 	float requiredHeight = pt.y + maxHeight ;
@@ -1033,12 +1097,17 @@ const float halfRingWidth = 2.0 ;
 	// Remove old toolTips
 	// Remember this, because, -removeAllToolTips removes both
 	// the view-wide toolTip and the rect toolTips.
-	NSString* wholeViewToolTip = [[self toolTip] retain] ;
+	NSString* wholeViewToolTip = [self toolTip] ;
+#if !__has_feature(objc_arc)
+    [wholeViewToolTip retain];
+#endif
 	// Yes, it will crash if I don't retain it.
 	[self removeAllToolTips] ;
 	if (wholeViewToolTip != nil) {
 		[self setToolTip:wholeViewToolTip] ;
-		[wholeViewToolTip release] ;
+#if !__has_feature(objc_arc)
+		[wholeViewToolTip release];
+#endif
 	}
 	// Add new toolTip rects
 	{
@@ -1053,7 +1122,9 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (void)invalidateLayout {
+#if !__has_feature(objc_arc)
 	[_framedTokens release];
+#endif
 	_framedTokens = nil;
 	[self doLayout] ;
 	[self setNeedsDisplay:YES];
@@ -1068,7 +1139,9 @@ const float halfRingWidth = 2.0 ;
 
 
 - (void)setSelectedIndexSet:(NSIndexSet*)newSelectedIndexSet {
-	[_selectedIndexSet release] ;
+#if !__has_feature(objc_arc)
+	[_selectedIndexSet release];
+#endif
 	_selectedIndexSet = [newSelectedIndexSet copy] ;
 }
 
@@ -1084,7 +1157,9 @@ const float halfRingWidth = 2.0 ;
 	}
 	
 	NSIndexSet* output = [deselectedIndexesSet copy] ;
-	[deselectedIndexesSet release] ;
+#if !__has_feature(objc_arc)
+	[deselectedIndexesSet release];
+#endif
 	
 	return [output autorelease] ;
 }
@@ -1099,7 +1174,9 @@ const float halfRingWidth = 2.0 ;
             FramedToken* framedToken = [_framedTokens objectAtIndex:index] ;
             [self setNeedsDisplayInRect:[framedToken bounds]] ;
         }
-        [selectedIndexSet release] ;
+#if !__has_feature(objc_arc)
+        [selectedIndexSet release];
+#endif
     }
 }
 
@@ -1111,7 +1188,9 @@ const float halfRingWidth = 2.0 ;
 		FramedToken* framedToken = [_framedTokens objectAtIndex:index] ;
 		[self setNeedsDisplayInRect:[framedToken bounds]] ;
 	}
-	[selectedIndexSet release] ;
+#if !__has_feature(objc_arc)
+	[selectedIndexSet release];
+#endif
 }
 
 - (void)selectIndexesInRange:(NSRange)range {
@@ -1134,7 +1213,9 @@ const float halfRingWidth = 2.0 ;
 		
 		[self setSelectedIndexSet:selectedIndexSet] ;
 	}
-	[selectedIndexSet release] ;
+#if !__has_feature(objc_arc)
+	[selectedIndexSet release];
+#endif
 	_lastSelectedIndex = lastIndexToSelect ;
 }
 
@@ -1160,7 +1241,9 @@ const float halfRingWidth = 2.0 ;
 		[selectedIndexSet removeAllIndexes] ;		
 		[self setSelectedIndexSet:selectedIndexSet] ;
 	}
-	[selectedIndexSet release] ;
+#if !__has_feature(objc_arc)
+	[selectedIndexSet release];
+#endif
 	
 	_lastSelectedIndex = NSNotFound ;
 }
@@ -1185,8 +1268,10 @@ const float halfRingWidth = 2.0 ;
 		[self setSelectedIndexSet:selectedIndexSet] ;
 	}
 	_lastSelectedIndex = [selectedIndexSet lastIndex] ;
-	
-	[selectedIndexSet release] ;
+
+#if !__has_feature(objc_arc)
+    [selectedIndexSet release];
+#endif
 }
 
 - (void)setMaxTokensToDisplay:(NSInteger)maxTokensToDisplay {
@@ -1312,7 +1397,9 @@ const float halfRingWidth = 2.0 ;
 	}
 	
 	NSArray* output = [selectedTokens copy] ;
-	[selectedTokens release] ;
+#if !__has_feature(objc_arc)
+	[selectedTokens release];
+#endif
 	
 	return [output autorelease] ;
 }
@@ -1358,9 +1445,13 @@ const float halfRingWidth = 2.0 ;
 	NSMutableString* mutableString = [string mutableCopy] ;
 	[newTokens addObject:mutableString] ;
 	[self setTokenBeingEdited:mutableString] ;
-	[mutableString release] ;
+#if !__has_feature(objc_arc)
+	[mutableString release];
+#endif
 	// We set the ivar directly here to avoid triggering KVO
-	[m_objectValue release] ;
+#if !__has_feature(objc_arc)
+	[m_objectValue release];
+#endif
 	m_objectValue = newTokens ;
 	[self deselectAllIndexes] ;
 	[self invalidateLayout] ;
@@ -1441,9 +1532,13 @@ const float halfRingWidth = 2.0 ;
 	[tokens removeObject:tokenEditing] ;
 	NSString* newToken = [tokenEditing copy] ;
 	[tokens addObject:newToken] ;
-	[newToken release] ;
-	// Next two lines are so that substantiveChange will be detected
-	[m_objectValue release] ;
+#if !__has_feature(objc_arc)
+	[newToken release];
+#endif
+#if !__has_feature(objc_arc)
+	[m_objectValue release];
+#endif
+    // Next line is so that substantiveChange will be detected
 	m_objectValue = nil ;
 	// Now, we trigger KVO
 	[self setObjectValue:tokens] ;
@@ -1512,8 +1607,10 @@ const float halfRingWidth = 2.0 ;
 				}
 			}
 		}
-		
-		[distances release] ;
+
+#if !__has_feature(objc_arc)
+		[distances release];
+#endif
 	}
 	
 	return index ;
@@ -1696,7 +1793,9 @@ const float halfRingWidth = 2.0 ;
                 
                 // Invoke the KVC-compliant setter
                 [self setObjectValue:newTokens] ;
-                [newTokens release] ;
+#if !__has_feature(objc_arc)
+                [newTokens release];
+#endif
                 
                 // Deselect the selected tokens
                 [self deselectAllIndexes] ;
@@ -1710,7 +1809,9 @@ const float halfRingWidth = 2.0 ;
         else {
             // Must be a state marker.  Nothing to delete.
         }
-        [tokensToDelete release] ;
+#if !__has_feature(objc_arc)
+        [tokensToDelete release];
+#endif
     }
 
     return didDelete ;
@@ -1853,7 +1954,9 @@ const float halfRingWidth = 2.0 ;
                 NSPredicate* predicate = [NSPredicate predicateWithFormat:@"SELF beginswith[cd] %@", prefix] ;
                 [mutableSet filterUsingPredicate:predicate] ;
                 NSArray* filteredCandididates = [mutableSet allObjects] ;
-                [mutableSet release] ;
+#if !__has_feature(objc_arc)
+                [mutableSet release];
+#endif
                 filteredCandididates = [filteredCandididates sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] ;
                 if ([filteredCandididates count] > 0) {
                     NSString* firstCandidate = [filteredCandididates objectAtIndex:0] ;
@@ -2054,7 +2157,9 @@ const float halfRingWidth = 2.0 ;
     [self setObjectValue:SSYNoTokensMarker] ;
     NSMutableIndexSet* set = [[NSMutableIndexSet alloc] init] ;
     [self setSelectedIndexSet:set] ;
-    [set release] ; // Memory leak fixed in BookMacster 1.11
+#if !__has_feature(objc_arc)
+    [set release];
+#endif
     [self setEditability:RPTokenControlEditability1] ;
     
     [self setMaxTokensToDisplay:NSNotFound] ;
@@ -2121,26 +2226,41 @@ const float halfRingWidth = 2.0 ;
         m_tokenizingCharacter = (unichar)[coder decodeBytesForKey:constKeyTokenizingCharacter returnedLength:&betterBeLengthOfUnichar] ;
         _firstTokenToDisplay = [coder decodeIntegerForKey:constKeyFirstTokenToDisplay] ;
         _fancyEffects = [coder decodeIntegerForKey:constKeyFancyEffects] ;
-        m_delegate = [[coder decodeObjectForKey:constKeyDelegate] retain] ;
-        _dragImage = [[coder decodeObjectForKey:constKeyDragImage] retain] ;
-        _framedTokens = [[coder decodeObjectForKey:constKeyFramedTokens] retain] ;
-        _truncatedTokens = [[coder decodeObjectForKey:constKeyTruncatedTokens] retain] ;
-        m_disallowedCharacterSet = [[coder decodeObjectForKey:constKeyDisallowedCharacterSet] retain] ;
-        m_tokenizingCharacterSet = [[coder decodeObjectForKey:constKeyTokenizingCharacterSet] retain] ;
-        m_replacementString = [[coder decodeObjectForKey:constKeyReplacementString] retain] ;
-        m_noTokensPlaceholder = [[coder decodeObjectForKey:constKeyNoTokensPlaceholder] retain] ;
-        m_noSelectionPlaceholder = [[coder decodeObjectForKey:constKeyNoSelectionPlaceholder] retain] ;
-        m_multipleValuesPlaceholder = [[coder decodeObjectForKey:constKeyMultipleValuesPlaceholder] retain] ;
-        m_notApplicablePlaceholder = [[coder decodeObjectForKey:constKeyNotApplicablePlaceholder] retain] ;
-        _linkDragType = [[coder decodeObjectForKey:constKeyLinkDragType] retain] ;
-        _textField = [[coder decodeObjectForKey:constKeyTextField] retain] ;
-
+        m_delegate = [coder decodeObjectForKey:constKeyDelegate];
+        _dragImage = [coder decodeObjectForKey:constKeyDragImage];
+        _framedTokens = [coder decodeObjectForKey:constKeyFramedTokens];
+        _truncatedTokens = [coder decodeObjectForKey:constKeyTruncatedTokens];
+        m_disallowedCharacterSet = [coder decodeObjectForKey:constKeyDisallowedCharacterSet];
+        m_tokenizingCharacterSet = [coder decodeObjectForKey:constKeyTokenizingCharacterSet];
+        m_replacementString = [coder decodeObjectForKey:constKeyReplacementString];
+        m_noTokensPlaceholder = [coder decodeObjectForKey:constKeyNoTokensPlaceholder];
+        m_noSelectionPlaceholder = [coder decodeObjectForKey:constKeyNoSelectionPlaceholder];
+        m_multipleValuesPlaceholder = [coder decodeObjectForKey:constKeyMultipleValuesPlaceholder];
+        m_notApplicablePlaceholder = [coder decodeObjectForKey:constKeyNotApplicablePlaceholder];
+        _linkDragType = [coder decodeObjectForKey:constKeyLinkDragType];
+        _textField = [coder decodeObjectForKey:constKeyTextField];
+#if !__has_feature(objc_arc)
+        [m_delegate retain];
+        [_dragImage retain];
+        [_framedTokens retain];
+        [_truncatedTokens retain];
+        [m_disallowedCharacterSet retain];
+        [m_tokenizingCharacterSet retain];
+        [m_replacementString retain];
+        [m_noTokensPlaceholder retain];
+        [m_noSelectionPlaceholder retain];
+        [m_multipleValuesPlaceholder retain];
+        [m_notApplicablePlaceholder retain];
+        [_linkDragType retain];
+        [_textField retain];
+#endif
         [self initCommon] ;
     }
 	return self ;
 }
 
 - (void)dealloc {
+#if !__has_feature(objc_arc)
 	[_dragImage release] ;
 	[_linkDragType release] ;
 	[_tokenBeingEdited release] ;
@@ -2156,6 +2276,8 @@ const float halfRingWidth = 2.0 ;
 	[_framedTokens release] ;
 	[_truncatedTokens release] ;
 	[m_objectValue release] ;
+    [_accessibilityChildren release];
+#endif
 
 	[super dealloc] ;
 }
@@ -2238,7 +2360,9 @@ const float halfRingWidth = 2.0 ;
                                       // Deselected token does not have an outline, so TCStrokeColorAttributeName is omitted.
                                       shadow, NSShadowAttributeName,  // may be nil
 									  nil] ;
+#if !__has_feature(objc_arc)
 		[shadow release];
+#endif
         
 		// Draw tokens that need to be drawn
         NSInteger i = 0 ;
@@ -2317,7 +2441,9 @@ const float halfRingWidth = 2.0 ;
 			NSRect rect = [self frame] ;
 			rect.origin = NSMakePoint(fontSize * .25 + tokenBoxTextInset, tokenBoxTextInset) ;
 			[attributedString drawInRect:rect] ;
-			[attributedString release] ;
+#if !__has_feature(objc_arc)
+			[attributedString release];
+#endif
 		}												
 	}
 	
@@ -2465,7 +2591,9 @@ const float halfRingWidth = 2.0 ;
 		NSMutableSet* tokens = [[self tokensSet] mutableCopy] ;
 		[tokens unionSet:[NSSet setWithArray:newTokens]] ;
 		[self setObjectValue:tokens] ;
-		[tokens release] ;
+#if !__has_feature(objc_arc)
+		[tokens release];
+#endif
 		ok = YES ;
 	}		
 	
@@ -2565,7 +2693,9 @@ const float halfRingWidth = 2.0 ;
             [menuItem setTarget:self] ;
             [menuItem setRepresentedObject:event] ;
             [menu addItem:menuItem] ;
-            [menuItem release] ;
+#if !__has_feature(objc_arc)
+            [menuItem release];
+#endif
             
             // Menu item for "Rename"
             if ([[self delegate] respondsToSelector:@selector(tokenControl:renameToken:)]) {
@@ -2579,7 +2709,9 @@ const float halfRingWidth = 2.0 ;
                 [menuItem setTarget:self] ;
                 [menuItem setRepresentedObject:countedToken] ;
                 [menu addItem:menuItem] ;
-                [menuItem release] ;
+#if !__has_feature(objc_arc)
+                [menuItem release];
+#endif
             }
         }
         else {
@@ -2595,22 +2727,70 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (NSArray*)accessibilityChildren {
-    NSMutableArray* accessibilityChildren = [NSMutableArray new];
+    NSMutableSet* extraChildren = [[NSMutableSet setWithArray:_accessibilityChildren] mutableCopy];
+    NSMutableSet* missingChildren = [NSMutableSet new];
     for (FramedToken* framedToken in _framedTokens) {
-        FramedTokenAccessibilityElement* child = [[FramedTokenAccessibilityElement alloc] initWithTokenControl:self
-                                                                                                       framedToken:framedToken];
-        child.accessibilityParent = self;
-        child.accessibilityFrameInParentSpace = [framedToken bounds];
+        BOOL alreadyExists = NO;
+        for (FramedTokenAccessibilityElement* child in _accessibilityChildren) {
+            if (framedToken == child.framedToken) {
+                [extraChildren removeObject:child];
+                alreadyExists = YES;
+                break;
+            }
+        }
 
-        [accessibilityChildren addObject:child];
-        [child release];
+        if (!alreadyExists) {
+            FramedTokenAccessibilityElement* child = [[FramedTokenAccessibilityElement alloc] initWithTokenControl:self
+                                                                                                       framedToken:framedToken];
+            child.accessibilityParent = self;
+            NSRect frame = [framedToken bounds];
+            /* It seems like, since self is assigned to the child's
+             accessibilityParent, Cocoa should be smart enough to ask parent if
+             it -isFlipped and do the flipping for us.  However, testing in
+             macOS 10.12, we find that, without the following flip, the black
+             VoiceOver rectangles begin from the bottom of the RPTokenControl
+             instead of from the top.  Am I missing something? */
+            if (self.isFlipped) {
+                frame.origin.y = self.frame.size.height - frame.origin.y - frame.size.height;
+            }
+            child.accessibilityFrameInParentSpace = frame;
+
+            [missingChildren addObject:child];
+#if !__has_feature(objc_arc)
+            [child release];
+#endif
+        }
     }
 
-    NSArray* answer = [accessibilityChildren copy];
-    [accessibilityChildren release];
-    [answer autorelease];
+    if ((extraChildren.count > 0) || (missingChildren.count > 0)) {
+        NSMutableArray* accessibilityChildren;
+        if (_accessibilityChildren) {
+            accessibilityChildren = [_accessibilityChildren mutableCopy];
+        } else {
+            accessibilityChildren = [NSMutableArray new];
+        }
 
-    return answer;
+        for (FramedTokenAccessibilityElement* child in extraChildren) {
+            [accessibilityChildren removeObject:child];
+        }
+        for (FramedTokenAccessibilityElement* child in missingChildren) {
+            [accessibilityChildren addObject:child];
+        }
+#if !__has_feature(objc_arc)
+        [_accessibilityChildren release];
+#endif
+        _accessibilityChildren = [accessibilityChildren copy];
+#if !__has_feature(objc_arc)
+        [accessibilityChildren release];
+#endif
+    }
+#if !__has_feature(objc_arc)
+    [extraChildren release];
+    [missingChildren release];
+#endif
+
+
+    return _accessibilityChildren;
 }
 
 
