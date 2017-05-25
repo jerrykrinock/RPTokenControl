@@ -2727,6 +2727,11 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (NSArray*)accessibilityChildren {
+    /* For explanation of why we go through the trouble of storing this array
+     in a ivar (_accessibilityChildren), and carefully re-use prior children
+     instead of just re-creating the whole array from scratch each time this
+     method runs, which would be a lot less code, read this:
+     https://stackoverflow.com/questions/43986641/macos-accessibility-groups */
     NSMutableSet* extraChildren = [[NSMutableSet setWithArray:_accessibilityChildren] mutableCopy];
     NSMutableSet* missingChildren = [NSMutableSet new];
     for (FramedToken* framedToken in _framedTokens) {
