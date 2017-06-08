@@ -1652,7 +1652,7 @@ const float halfRingWidth = 2.0 ;
 	BOOL answer = NO ;
 	id lastFramedToken = [_framedTokens lastObject] ;
 	if (lastFramedToken != nil) {
-		if ([[lastFramedToken token] isEllipsisToken]) {
+		if ([(RPCountedToken*)[lastFramedToken token] isEllipsisToken]) {
 			answer = YES ;
 		}
 	}
