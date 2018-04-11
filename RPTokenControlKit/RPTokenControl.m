@@ -309,7 +309,6 @@ float const tokenBoxTextInset = 2.0 ;
 
 @interface FramedTokenAccessibilityElement : NSAccessibilityElement <NSAccessibilityButton> {
     FramedToken* _framedToken;
-    RPTokenControl* _tokenControl;
 }
 
 - (instancetype)init NS_UNAVAILABLE;
