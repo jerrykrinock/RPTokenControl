@@ -1126,7 +1126,7 @@ const float halfRingWidth = 2.0 ;
 #endif
 	_framedTokens = nil;
 	[self doLayout] ;
-	[self setNeedsDisplay:YES];
+    self.needsDisplay = YES;
 }
 
 
@@ -1281,29 +1281,29 @@ const float halfRingWidth = 2.0 ;
 
 - (void)setFancyEffects:(NSInteger)fancyEffects {
     _fancyEffects = fancyEffects ;
-    [self setNeedsDisplay:YES] ;
+    self.needsDisplay = YES;
 }
 
 - (void)setBackgroundWhiteness:(float)whiteness {
 	_backgroundWhiteness = whiteness ;
-    [self setNeedsDisplay:YES] ;
+    self.needsDisplay = YES;
 }
 
 - (void)setTokenColorScheme:(RPTokenControlTokenColorScheme)tokenColorScheme {
 	_tokenColorScheme = tokenColorScheme ;
-    [self setNeedsDisplay:YES] ;
+    self.needsDisplay = YES;
 }
 
 - (void)setCornerRadiusFactor:(float)cornerRadiusFactor {
 	_cornerRadiusFactor = cornerRadiusFactor ;
     [self invalidateLayout];
-    [self setNeedsDisplay:YES] ;
+    self.needsDisplay = YES;
 }
 
 - (void)setWidthPaddingMultiplier:(float)widthPaddingMultiplier {
 	_widthPaddingMultiplier = widthPaddingMultiplier ;
     [self invalidateLayout];
-    [self setNeedsDisplay:YES] ;
+    self.needsDisplay = YES;
 }
 
 - (void)setShowsCountsAsToolTips:(BOOL)yn {
@@ -1313,7 +1313,7 @@ const float halfRingWidth = 2.0 ;
 - (void)setAppendCountsToStrings:(BOOL)yn {
     _appendCountsToStrings = yn ;
     [self invalidateLayout];
-    [self setNeedsDisplay:YES] ;
+    self.needsDisplay = YES;
 }
 
 - (RPTokenControlEditability)editability {
