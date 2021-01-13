@@ -1706,8 +1706,8 @@ const float halfRingWidth = 2.0 ;
 	
 	if (canSelect) {
 		NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags] ;
-		BOOL shiftKeyDown = ((modifierFlags & NSShiftKeyMask) != 0) ;
-		BOOL cmdKeyDown = ((modifierFlags & NSCommandKeyMask) != 0) ;
+		BOOL shiftKeyDown = ((modifierFlags & NSEventModifierFlagShift) != 0) ;
+		BOOL cmdKeyDown = ((modifierFlags & NSEventModifierFlagCommand) != 0) ;
 		if (index != NSNotFound) {
 			if (cmdKeyDown) {
 				if ([self isSelectedIndex:index]) {
@@ -1993,7 +1993,7 @@ const float halfRingWidth = 2.0 ;
 
 - (void)changeSelectionPerClickOnFramedToken:(FramedToken*)clickedFramedToken {
     NSUInteger modifierFlags = [[NSApp currentEvent] modifierFlags] ;
-    BOOL cmdKeyDown = ((modifierFlags & NSCommandKeyMask) != 0) ;
+    BOOL cmdKeyDown = ((modifierFlags & NSEventModifierFlagCommand) != 0) ;
     if (clickedFramedToken) {
         [self changeSelectionPerUserActionAtFramedToken:clickedFramedToken] ;
     }
@@ -2282,7 +2282,7 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (void)awakeFromNib {
-	[self sendActionOn:NSLeftMouseDownMask] ;
+    [self sendActionOn:NSEventTypeLeftMouseDown] ;
 	// We need to  that because the default for an NSControl
 	// seems to be "left mouse UP".  We want DOWN.
 	
