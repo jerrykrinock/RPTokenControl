@@ -1086,7 +1086,7 @@ const float halfRingWidth = 2.0 ;
                                          horizontalScrollerClass:([scrollView hasHorizontalScroller] ? [NSScroller class] : nil)
                                            verticalScrollerClass:([scrollView hasVerticalScroller] ? [NSScroller class] : nil)
                                                       borderType:[scrollView borderType]
-                                                     controlSize:NSRegularControlSize
+                                                     controlSize:NSControlSizeRegular
                                                    scrollerStyle:NSScrollerStyleOverlay].width ;
 	}
 	[self setFrameSize:frame.size] ;
