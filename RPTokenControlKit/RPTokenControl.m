@@ -2685,10 +2685,9 @@ const float halfRingWidth = 2.0 ;
                                                       tokenName:clickedTokenName] ;
             }
             
-            menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
-                        initWithTitle:title
-                        action:@selector(deleteSelectedTokens:)
-                        keyEquivalent:@""] ;
+            menuItem = [[NSMenuItem alloc] initWithTitle:title
+                                                  action:@selector(deleteSelectedTokens:)
+                                           keyEquivalent:@""] ;
             [menuItem setTarget:self] ;
             [menuItem setRepresentedObject:event] ;
             [menu addItem:menuItem] ;
@@ -2701,10 +2700,9 @@ const float halfRingWidth = 2.0 ;
                 title = [NSString stringWithFormat:
                          @"Rename '%@'",
                          [countedToken text]] ;
-                menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
-                            initWithTitle:title
-                            action:@selector(renameSelectedToken:)
-                            keyEquivalent:@""] ;
+                menuItem = [[NSMenuItem alloc] initWithTitle:title
+                                                      action:@selector(renameSelectedToken:)
+                                               keyEquivalent:@""] ;
                 [menuItem setTarget:self] ;
                 [menuItem setRepresentedObject:countedToken] ;
                 [menu addItem:menuItem] ;
