@@ -674,7 +674,7 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 
 - (void)registerForDefaultDraggedTypes {
 	[self registerForDraggedTypes:[NSArray arrayWithObjects:
-								   NSStringPboardType,
+								   NSPasteboardTypeString,
 								   NSTabularTextPboardType,
 								   nil]] ;
 }
@@ -2074,7 +2074,7 @@ const float halfRingWidth = 2.0 ;
 				[pboard declareTypes:[NSArray arrayWithObjects:
 									  RPTokenControlPasteboardTypeTokens,
 									  RPTokenControlPasteboardTypeTabularTokens,
-									  NSStringPboardType,
+									  NSPasteboardTypeString,
 									  NSTabularTextPboardType, nil]
 							   owner:self] ;
 				[pboard setString:token1
@@ -2082,7 +2082,7 @@ const float halfRingWidth = 2.0 ;
 				[pboard setString:tabSeparatedTokens
 						  forType:RPTokenControlPasteboardTypeTabularTokens] ;
 				[pboard setString:token1
-						  forType:NSStringPboardType] ;
+						  forType:NSPasteboardTypeString] ;
 				[pboard setString:tabSeparatedTokens
 						  forType:NSTabularTextPboardType] ;
 				NSSize dragOffset = NSMakeSize(0.0, 0.0);
@@ -2580,8 +2580,8 @@ const float halfRingWidth = 2.0 ;
 		newTokens = [tokenString componentsSeparatedByString:@"\t"] ;
 		ok = YES ;
     }
-	else if ( [[pboard types] containsObject:NSStringPboardType] ) {
-        NSString* newToken = [pboard stringForType:NSStringPboardType] ;
+	else if ( [[pboard types] containsObject:NSPasteboardTypeString] ) {
+        NSString* newToken = [pboard stringForType:NSPasteboardTypeString] ;
 		newTokens = [NSArray arrayWithObject:newToken] ;
 		ok = YES ;
     }
