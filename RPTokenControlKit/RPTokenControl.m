@@ -2282,7 +2282,7 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (void)awakeFromNib {
-    [self sendActionOn:NSEventTypeLeftMouseDown] ;
+    [self sendActionOn:NSEventMaskLeftMouseDown] ;
 	// We need to  that because the default for an NSControl
 	// seems to be "left mouse UP".  We want DOWN.
 	
