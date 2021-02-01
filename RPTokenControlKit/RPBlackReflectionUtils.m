@@ -28,7 +28,7 @@ static const CGFunctionCallbacks linearFunctionCallbacks = {0, &_linearColorBlen
 
 - (void)shadow {
     CGFunctionRef linearBlendFunctionRef = CGFunctionCreate(NULL, 1, domainAndRange, 4, domainAndRange, &linearFunctionCallbacks);
-    CGContextRef currentContext = [[NSGraphicsContext currentContext] graphicsPort];
+    CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
     CGContextSaveGState(currentContext);
     CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     NSRect bounds = [self bounds];
