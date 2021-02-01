@@ -2305,7 +2305,7 @@ const float halfRingWidth = 2.0 ;
  	if ([_framedTokens count] > 0) {
 		CGContextRef context = NULL;
         if ((_fancyEffects & RPTokenFancyEffectShadow) != 0) {
-            context = [[NSGraphicsContext currentContext] graphicsPort];
+            context = [[NSGraphicsContext currentContext] CGContext];
             CGContextSaveGState(context);
             CGSize cgshOffset = {2.0, -2.0};
             CGContextSetShadow(context, cgshOffset, 1.0);
