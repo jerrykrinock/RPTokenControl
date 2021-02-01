@@ -675,7 +675,7 @@ const float minGap = 2.0 ; // Used for both horizontal and vertical gap between 
 - (void)registerForDefaultDraggedTypes {
 	[self registerForDraggedTypes:[NSArray arrayWithObjects:
 								   NSPasteboardTypeString,
-								   NSTabularTextPboardType,
+								   NSPasteboardTypeTabularText,
 								   nil]] ;
 }
 
@@ -2070,12 +2070,12 @@ const float halfRingWidth = 2.0 ;
 				NSString* tabSeparatedTokens = [selectedTokens componentsJoinedByString:@"\t"] ;
 				NSString* token1 = [selectedTokens objectAtIndex:0] ;
 				NSPasteboard *pboard ;
-				pboard = [NSPasteboard pasteboardWithName:NSDragPboard] ;
+				pboard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag] ;
 				[pboard declareTypes:[NSArray arrayWithObjects:
 									  RPTokenControlPasteboardTypeTokens,
 									  RPTokenControlPasteboardTypeTabularTokens,
 									  NSPasteboardTypeString,
-									  NSTabularTextPboardType, nil]
+									  NSPasteboardTypeTabularText, nil]
 							   owner:self] ;
 				[pboard setString:token1
 						  forType:RPTokenControlPasteboardTypeTokens] ;
@@ -2084,7 +2084,7 @@ const float halfRingWidth = 2.0 ;
 				[pboard setString:token1
 						  forType:NSPasteboardTypeString] ;
 				[pboard setString:tabSeparatedTokens
-						  forType:NSTabularTextPboardType] ;
+						  forType:NSPasteboardTypeTabularText] ;
 				NSSize dragOffset = NSMakeSize(0.0, 0.0);
 
                 [[self window] dragImage:[self dragImage]
@@ -2109,7 +2109,7 @@ const float halfRingWidth = 2.0 ;
 }
 
 - (id)pasteboardPropertyListForType:(NSString *)type {
-    NSPasteboard* pboard = [NSPasteboard pasteboardWithName:NSDragPboard] ;
+    NSPasteboard* pboard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag] ;
     id answer = [pboard propertyListForType:type] ;
     if (!answer) {
         answer = [pboard stringForType:type] ;
@@ -2575,8 +2575,8 @@ const float halfRingWidth = 2.0 ;
 			ok = NO ;
 		}
 	}
-	else if ( [[pboard types] containsObject:NSTabularTextPboardType] ) {
-        NSString* tokenString = [pboard stringForType:NSTabularTextPboardType] ;
+	else if ( [[pboard types] containsObject:NSPasteboardTypeTabularText] ) {
+        NSString* tokenString = [pboard stringForType:NSPasteboardTypeTabularText] ;
 		newTokens = [tokenString componentsSeparatedByString:@"\t"] ;
 		ok = YES ;
     }

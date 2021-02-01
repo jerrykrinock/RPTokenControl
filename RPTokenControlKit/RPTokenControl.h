@@ -214,9 +214,9 @@ typedef enum RPTokenControlTokenColorScheme_enum RPTokenControlTokenColorScheme 
  RPTokenControl provides four pasteboard types to the dragging pasteboard.
  <ol>
  <li>NSPasteboardTypeString: NSString of the last selected token</li>
- <li>NSTabularTextPboardType: tab-separated string of selected tokens</li>
+ <li>NSPasteboardTypeTabularText: tab-separated string of selected tokens</li>
  <li>RPTokenControlPasteboardTypeTokens: same as NSString PboardType</li>
- <li>RPTokenControlPasteboardTypeTabularTokens: same as NSTabularTextPboardType</li>
+ <li>RPTokenControlPasteboardTypeTabularTokens: same as NSPasteboardTypeTabularText</li>
  </ol>
  Although the payload is the same as the first two types, the last two
  types are provided to distinguish drags from the RPTokenControl from
